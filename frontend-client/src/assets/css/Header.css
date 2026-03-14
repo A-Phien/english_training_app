@@ -1,0 +1,67 @@
+/* Giao diện thực chiến - Không màu mè */
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 2rem;
+    background: #fff;
+    border-bottom: 1px solid #eee; /* Chỉ một đường kẻ mỏng phân ranh giới */
+}
+
+/* Logo thực tế, không cần icon emoji lòe loẹt */
+.logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-decoration: none;
+    letter-spacing: -0.5px;
+}
+
+/* Menu điều hướng - Thẳng thắn, giản đơn */
+.nav-menu ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 24px;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #666;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.nav-menu a:hover {
+    color: #000; /* Chỉ đổi màu nhẹ khi lướt qua */
+}
+
+/* Khu vực chức năng */
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.btn-login {
+    text-decoration: none;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.btn-register {
+    background: #1a1a1a; /* Màu đen tối giản, quyền lực */
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: opacity 0.2s;
+}
+
+.btn-register:hover {
+    opacity: 0.8;
+}

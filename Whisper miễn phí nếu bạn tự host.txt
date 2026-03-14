@@ -1,0 +1,287 @@
+Whisper miễn phí nếu bạn tự host
+
+Whisper là mã nguồn mở: bạn có thể tải model về và chạy nó trên máy của bạn (hoặc server) → không mất tiền API.
+
+📌 Ưu điểm
+
+Miễn phí hoàn toàn cho việc chuyển âm thanh thành chữ.
+
+Không cần API key.
+
+Không tính phút/giây hay token.
+
+❗ Nhược điểm
+
+Cần may đủ mạnh (CPU có thể làm chậm, dùng GPU nhanh hơn).
+
+Phải tự triển khai môi trường (devops / server).
+
+Không thể scale nhiều user dễ như dùng API.
+
+👉 Đây chính là cách miễn phí thực sự cho dev/test/learning
+
+
+2) Whisper API trả phí (OpenAI hoặc bên thứ 3)
+
+Nếu bạn dùng API hosting (OpenAI, một dịch vụ cloud khác), thì thường là:
+
+🔹 OpenAI Whisper API
+
+Không có miễn phí vĩnh viễn.
+
+OpenAI thường tặng $5 credits cho tài khoản mới → bạn có thể dùng để test API Whisper và các API khác trong vài tháng.
+
+Sau khi hết credits, bạn phải trả tiền theo số phút audio:
+
+Khoảng $0.003–$0.006 / phút audio âm thanh (tuỳ model, mức này là tham khảo tại thời điểm 2026).
+
+⚠️ Không có “free tier” không giới hạn hoặc miễn phí mãi mãi trong OpenAI Whisper API — dù bạn có API key, nếu hết credit thì bạn trả tiền.
+
+
+
+
+Bài toán:
+
+Xây dựng hệ thống hỗ trợ luyện phát âm tiếng Anh, sử dụng:
+
+Nhận dạng giọng nói (Speech-to-Text)
+
+So sánh với phụ đề chuẩn
+
+Đánh giá độ chính xác phát âm
+
+🏗 II. KIẾN TRÚC HỆ THỐNG
+3 TẦNG
+
+Frontend (React)
+↓
+Backend (Spring Boot)
+↓
+AI Engine (Python - FastAPI)
+
+🧠 III. LUỒNG HOẠT ĐỘNG CHUẨN
+🔹 PHẦN ADMIN
+
+Admin nhập YouTube URL
+
+Backend trích xuất videoId
+
+Backend gọi AI Engine để:
+
+Lấy subtitle
+
+Chuẩn hóa
+
+Tách thành câu
+
+Backend lưu vào DB
+
+🔹 PHẦN USER
+
+User chọn lesson
+
+Frontend hiển thị:
+
+Video
+
+Danh sách câu subtitle
+
+User chọn câu
+
+User ghi âm
+
+Backend gửi audio + expected_text sang AI Engine
+
+AI Engine:
+
+Whisper → transcript
+
+Normalize text
+
+So sánh
+
+Tính điểm
+
+Trả kết quả
+
+🗄 IV. DATABASE THIẾT KẾ
+1️⃣ lesson
+
+| id | title | youtube_url |
+
+2️⃣ sentence
+
+| id | lesson_id | content | start_time |
+
+3️⃣ evaluation
+
+| id | user_id | sentence_id | transcript | score |
+
+🤖 V. AI ENGINE MODULES
+1️⃣ Transcript Fetching Module
+
+Chức năng:
+
+Lấy subtitle từ YouTube
+
+Chuẩn hóa text
+
+Gộp thành câu hoàn chỉnh
+
+2️⃣ Speech Recognition Module
+
+Nhận file audio
+
+Whisper chuyển thành text
+
+3️⃣ Text Processing Module
+
+Lowercase
+
+Bỏ dấu câu
+
+Chuẩn hóa khoảng trắng
+
+4️⃣ Scoring Module
+
+Áp dụng:
+
+Levenshtein distance
+
+Hoặc
+
+Word-level accuracy
+
+Công thức:
+
+Score = 100 − (distance / max_length × 100)
+
+5️⃣ Error Analysis Module
+
+Trả về:
+
+wrong_words
+
+missing_words
+
+extra_words
+
+Frontend highlight lỗi.
+
+📊 VI. PHẦN HỌC THUẬT ĐỂ VIẾT BÁO CÁO
+
+Bạn sẽ có:
+
+Giới thiệu bài toán speech recognition
+
+Cơ sở lý thuyết:
+
+Whisper model
+
+Levenshtein distance
+
+Kiến trúc hệ thống
+
+Thiết kế DB
+
+Thuật toán chấm điểm
+
+Thực nghiệm:
+
+Test với N người
+
+So sánh model base vs small
+
+Phân tích kết quả
+
+🗺 VII. LỘ TRÌNH TRIỂN KHAI (CHI TIẾT)
+🔹 GIAI ĐOẠN 1 — HOÀN THIỆN NỀN TẢNG (Tuần 1–2)
+
+✔ Spring Boot chạy ổn
+
+✔ React gọi API được
+
+✔ CORS xử lý xong
+
+✔ Thiết kế DB
+
+✔ CRUD Lesson + Sentence
+
+🔹 GIAI ĐOẠN 2 — TÍCH HỢP YOUTUBE TRANSCRIPT (Tuần 3)
+
+Tạo API:
+POST /lessons/import-youtube
+
+AI Engine lấy subtitle
+
+Lưu vào DB
+
+Hiển thị được danh sách câu
+
+🔹 GIAI ĐOẠN 3 — TÍCH HỢP WHISPER (Tuần 4)
+
+Gửi audio sang AI Engine
+
+Nhận transcript
+
+Hiển thị transcript
+
+🔹 GIAI ĐOẠN 4 — XÂY DỰNG THUẬT TOÁN CHẤM ĐIỂM (Tuần 5)
+
+Normalization
+
+Levenshtein
+
+Word comparison
+
+Trả score + lỗi
+
+🔹 GIAI ĐOẠN 5 — TEST & THỰC NGHIỆM (Tuần 6)
+
+Thu thập 20–30 mẫu audio
+
+So sánh kết quả
+
+Phân tích sai số
+
+Ghi bảng thống kê
+
+🔹 GIAI ĐOẠN 6 — VIẾT BÁO CÁO (Tuần 7–8)
+
+Viết lý thuyết
+
+Vẽ sơ đồ kiến trúc
+
+Vẽ sequence diagram
+
+Vẽ ERD
+
+Slide tiếng Anh
+
+🧠 VIII. ĐIỂM MẠNH CỦA HƯỚNG NÀY
+
+✔ Có AI thật
+✔ Có xử lý dữ liệu
+✔ Có kiến trúc microservice
+✔ Có thực nghiệm
+✔ Có phân tích thuật toán
+
+→ Đủ chuẩn bảo vệ
+
+⚠️ IX. NHỮNG THỨ KHÔNG CẦN LÀM (ĐỪNG LAN MAN)
+
+❌ Không cần tự train model
+❌ Không cần deep learning custom
+❌ Không cần Kubernetes
+❌ Không cần hệ thống quá to
+
+🎯 X. TRẠNG THÁI HIỆN TẠI CỦA BẠN
+
+Hiện bạn đang ở:
+
+Giai đoạn 1 — Setup nền tảng
+
+Tiếp theo nên làm:
+
+👉 Thiết kế DB Lesson + Sentence trước
+👉 Sau đó mới làm YouTube transcript import
