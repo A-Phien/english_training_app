@@ -38,6 +38,7 @@ export default function Recorder({ sentenceId, onResult }) {
         stream.getTracks().forEach((track) => track.stop());
       };
 
+
       mediaRecorderRef.current = recorder;
       recorder.start();
       setRecording(true);

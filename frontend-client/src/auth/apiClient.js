@@ -19,6 +19,7 @@ const BASE_URL = "http://localhost:8080"; // Thay bằng URL backend của bạn
 const apiClient = async (endpoint, options = {}, requiresAuth = true) => {
     const url = `${BASE_URL}${endpoint}`;
 
+
     const headers = {
         "Content-Type": "application/json",
         ...options.headers,

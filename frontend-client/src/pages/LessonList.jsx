@@ -9,6 +9,7 @@ export default function LessonList() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+
   useEffect(() => {
     api.get("/api/lessons")
       .then((res) => {
