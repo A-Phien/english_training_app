@@ -1,6 +1,5 @@
 package com.example.backend_core.controll;
 
-
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
         return ResponseEntity.ok(
-            userService.login(body.get("username"), body.get("password"))
-        );
+                userService.login(body.get("username"), body.get("password")));
     }
 }
