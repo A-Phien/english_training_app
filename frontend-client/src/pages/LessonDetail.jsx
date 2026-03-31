@@ -47,6 +47,7 @@ export default function LessonDetail() {
       })
       .catch((err) => setError(err.message));
 
+
     // Fetch sentences
     api.get(`/api/sentences/lesson/${id}`)
       .then((res) => {
