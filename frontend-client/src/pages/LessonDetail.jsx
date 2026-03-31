@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "../assets/css/lessondetail.css"; 
-import Recorder from "./Recorder"; // Đảm bảo file Recorder.jsx nằm cùng thư mục
+import "../assets/css/lessondetail.css";
+import Recorder from "./Recorder";
+import { api } from "../auth/apiClient";
 
 export default function LessonDetail() {
   // --- 1. KHAI BÁO STATE ---
@@ -11,9 +12,10 @@ export default function LessonDetail() {
   const [videoId, setVideoId] = useState("");
   const [lessonTitle, setLessonTitle] = useState("");
   const [currentTime, setCurrentTime] = useState(0);
-  const [activeSentenceId, setActiveSentenceId] = useState(null); // Câu đang phát theo video
-  const [isLooping, setIsLooping] = useState(false); // Trạng thái lặp câu
-  const [selectedSentenceId, setSelectedSentenceId] = useState(null); // Câu được chọn để hiện Recorder
+  const [activeSentenceId, setActiveSentenceId] = useState(null);
+  const [isLooping, setIsLooping] = useState(false);
+  const [selectedSentenceId, setSelectedSentenceId] = useState(null);
+  const [error, setError] = useState("");
 
   // --- 2. KHAI BÁO REFS ---
   const playerRef = useRef(null);
@@ -31,23 +33,31 @@ export default function LessonDetail() {
 
   // --- 4. FETCH DỮ LIỆU BÀI HỌC & CÂU ---
   useEffect(() => {
-    fetch(`http://localhost:8080/api/lessons/${id}`)
-      .then(res => res.json())
-      .then(data => {
+    // Fetch lesson info
+    api.get(`/api/lessons/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Không thể tải bài học");
+        return res.json();
+      })
+      .then((data) => {
         setLessonTitle(data.title);
-        const vid = data.youtubeUrl?.split("v=")[1]?.split("&")[0] || data.videoId;
+        const vid =
+          data.youtubeUrl?.split("v=")[1]?.split("&")[0] || data.videoId;
         setVideoId(vid);
       })
-      .catch(err => console.error("Lỗi fetch lesson:", err));
+      .catch((err) => setError(err.message));
 
-    fetch(`http://localhost:8080/api/sentences/lesson/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        // Sắp xếp câu theo thời gian để highlight chuẩn
+    // Fetch sentences
+    api.get(`/api/sentences/lesson/${id}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Không thể tải câu");
+        return res.json();
+      })
+      .then((data) => {
         const sorted = data.sort((a, b) => a.startTime - b.startTime);
         setSentences(sorted);
       })
-      .catch(err => console.error("Lỗi fetch sentences:", err));
+      .catch((err) => setError(err.message));
   }, [id]);
 
   // --- 5. KHỞI TẠO YOUTUBE PLAYER ---
@@ -65,7 +75,7 @@ export default function LessonDetail() {
                 const now = playerRef.current.getCurrentTime();
                 setCurrentTime(now);
               }
-            }, 200); // Tần suất 200ms để bắt thời gian mượt hơn
+            }, 200);
           },
         },
       });
@@ -85,10 +95,10 @@ export default function LessonDetail() {
 
   // --- 6. TỰ ĐỘNG HIGHLIGHT CÂU ĐANG PHÁT ---
   useEffect(() => {
-    if (!sentences.length || isLooping) return; 
+    if (!sentences.length || isLooping) return;
 
     const active = sentences.find(
-      s => currentTime >= s.startTime && currentTime <= s.endTime
+      (s) => currentTime >= s.startTime && currentTime <= s.endTime
     );
     if (active && active.id !== activeSentenceId) {
       setActiveSentenceId(active.id);
@@ -98,7 +108,7 @@ export default function LessonDetail() {
   // --- 7. LOGIC LẶP ĐOẠN (A-B REPEAT) ---
   useEffect(() => {
     if (isLooping && activeSentenceId) {
-      const active = sentences.find(s => s.id === activeSentenceId);
+      const active = sentences.find((s) => s.id === activeSentenceId);
       if (active && currentTime >= active.endTime) {
         playerRef.current.seekTo(active.startTime, true);
       }
@@ -122,13 +132,13 @@ export default function LessonDetail() {
       playerRef.current.playVideo();
     }
     setActiveSentenceId(sentence.id);
-    setSelectedSentenceId(sentence.id); // Mở bộ ghi âm cho câu này
+    setSelectedSentenceId(sentence.id);
   }, []);
 
   const toggleLoop = () => setIsLooping(!isLooping);
 
-  // Câu hiển thị ở khu vực chính (Shadowing Box)
-  const activeSentenceData = sentences.find(s => s.id === activeSentenceId) || sentences[0];
+  const activeSentenceData =
+    sentences.find((s) => s.id === activeSentenceId) || sentences[0];
 
   return (
     <div className="lesson-page">
@@ -138,6 +148,10 @@ export default function LessonDetail() {
         </button>
         <h1 className="lesson-title">{lessonTitle || "Loading..."}</h1>
       </div>
+
+      {error && (
+        <div style={{ color: "red", padding: "8px 16px" }}>{error}</div>
+      )}
 
       <div className="lesson-layout">
         {/* CỘT TRÁI: VIDEO & SHADOWING */}
@@ -153,7 +167,9 @@ export default function LessonDetail() {
                   {activeSentenceData.content}
                 </div>
                 <div className="phonetic-text">[{activeSentenceData.ipa}]</div>
-                <div className="translation-text">{activeSentenceData.translation}</div>
+                <div className="translation-text">
+                  {activeSentenceData.translation}
+                </div>
 
                 <div className="shadowing-controls">
                   <button
@@ -162,8 +178,7 @@ export default function LessonDetail() {
                   >
                     {isLooping ? "🔄 Looping On" : "🔁 Loop Sentence"}
                   </button>
-                  
-                  {/* Recorder chính cho câu đang phát */}
+
                   <Recorder
                     sentenceId={activeSentenceData.id}
                     expectedText={activeSentenceData.content}
@@ -202,7 +217,9 @@ export default function LessonDetail() {
                       onClick={() => handleSentenceClick(sentence)}
                     >
                       <div className="card-header">
-                        <span className="sentence-number">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="sentence-number">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
                         {isActive && (
                           <div className="status-badge">
                             <span className="playing-icon">🔊</span>
@@ -215,12 +232,13 @@ export default function LessonDetail() {
                         <div className="original-text">{sentence.content}</div>
                         <div className="meta-info">
                           <span className="ipa-text">[{sentence.ipa}]</span>
-                          <span className="translation-text">{sentence.translation}</span>
+                          <span className="translation-text">
+                            {sentence.translation}
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Hiện Recorder nội bộ khi click chọn câu */}
                     {isSelected && (
                       <div className="inline-recorder-box">
                         <Recorder
