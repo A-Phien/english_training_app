@@ -22,7 +22,7 @@ public class SentenceController {
     private final SentenceService sentenceService;
 
     @GetMapping("/lesson/{lessonId}")
-    public List<Sentence> getByLesson(@PathVariable Long lessonId) {
+    public List<Sentence> getByLesson(@PathVariable("lessonId") Long lessonId) {
         return sentenceService.getByLesson(lessonId);
     }
 }

@@ -1,26 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../assets/css/lessonlist.css"; // Nhớ tạo file CSS này nhé
+import "../assets/css/lessonlist.css";
+import { api } from "../auth/apiClient";
 
 export default function LessonList() {
   const [lessons, setLessons] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/lessons")
-      .then((res) => res.json())
+    api.get("/api/lessons")
+      .then((res) => {
+        if (!res.ok) throw new Error("Không thể tải danh sách bài học");
+        return res.json();
+      })
       .then((data) => setLessons(data))
-      .catch((err) => console.error("Lỗi fetch danh sách:", err));
+      .catch((err) => setError(err.message))
+      .finally(() => setIsLoading(false));
   }, []);
 
-  // Hàm "trích xuất" videoId từ URL hoặc field videoId
   const getYouTubeId = (lesson) => {
     if (lesson.videoId) return lesson.videoId;
     const url = lesson.youtubeUrl;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url?.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    return match && match[2].length === 11 ? match[2] : null;
   };
+
+  if (isLoading) return <div className="container"><p>Đang tải...</p></div>;
+  if (error) return <div className="container"><p style={{ color: "red" }}>{error}</p></div>;
 
   return (
     <div className="container">
@@ -46,7 +55,7 @@ export default function LessonList() {
                   <span className="play-icon">▶</span>
                 </div>
               </div>
-              
+
               <div className="lesson-info">
                 <h3 className="lesson-card-title">{lesson.title}</h3>
                 <p className="lesson-desc">{lesson.description?.substring(0, 80)}...</p>

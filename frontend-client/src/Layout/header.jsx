@@ -1,5 +1,7 @@
 import React from 'react';
 import '../assets/css/Header.css'
+import { Link } from 'react-router-dom';
+
 const Header = () => {
   return (
     <header className="main-header">
@@ -10,7 +12,7 @@ const Header = () => {
 
       <nav className="nav-menu">
         <ul>
-          <li><a href="#lessons">Bài học</a></li>
+          <li><a href="/">Bài học</a></li>
           <li><a href="#vocabulary">Từ vựng</a></li>
           <li><a href="#practice">Thực chiến</a></li>
           <li><a href="#rank">Bảng vàng</a></li>
@@ -18,8 +20,8 @@ const Header = () => {
       </nav>
 
       <div className="user-actions">
-        <button className="btn-login">Đăng nhập</button>
-        <button className="btn-register">Gia nhập</button>
+        <Link to="/login" className="btn-login">Đăng nhập</Link>
+        <Link to="/register" className="btn-register">Gia nhập</Link>
       </div>
     </header>
   );
