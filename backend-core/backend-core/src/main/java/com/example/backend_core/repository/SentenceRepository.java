@@ -11,4 +11,5 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
     List<Sentence> findByLessonIdOrderByOrderIndexAsc(Long lessonId);
     
     List<Sentence> findByLesson_IdOrderByOrderIndexAsc(Long lessonId);
+    void deleteByLessonId(Long lessonId);
 }

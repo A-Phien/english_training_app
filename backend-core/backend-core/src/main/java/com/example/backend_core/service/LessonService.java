@@ -13,6 +13,8 @@ import com.example.backend_core.model.Sentence;
 import com.example.backend_core.repository.LessonRepository;
 import com.example.backend_core.repository.SentenceRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class LessonService {
 
@@ -76,14 +78,48 @@ public class LessonService {
         return savedLesson;
     }
 
-    // Cập nhật lesson
+ // Cập nhật lesson
+    @Transactional // Bắt buộc phải có bùa chú này để việc dọn dẹp (xóa) không bị lỗi
     public Lesson update(Long id, Lesson updated) {
+        // 1. Tìm lại bản ngã
         Lesson existing = getById(id);
         existing.setTitle(updated.getTitle());
         existing.setDescription(updated.getDescription());
         existing.setYoutubeUrl(updated.getYoutubeUrl());
         existing.setVideoId(updated.getVideoId());
-        return lessonRepository.save(existing);
+        
+        Lesson savedLesson = lessonRepository.save(existing);
+
+        // 2. Quét sạch tàn dư: Xóa toàn bộ các câu (Sentence) cũ bị lỗi của bài học này
+        // (Ngươi phải tự vào SentenceRepository viết thêm hàm void deleteByLessonId(Long lessonId); hiểu chưa?)
+        sentenceRepository.deleteByLessonId(id);
+
+        // 3. Khai mở trận pháp, triệu hồi lại AI
+        String videoId = extractVideoId(savedLesson.getYoutubeUrl());
+        String url = "http://localhost:8000/transcript/" + videoId;
+
+        try {
+            TranscriptResponse response = restTemplate.getForObject(url, TranscriptResponse.class);
+
+            if (response != null && response.getSentences() != null) {
+                for (Map<String, Object> item : response.getSentences()) {
+                    Sentence sentence = Sentence.builder()
+                            .content((String) item.get("content"))
+                            .startTime(Double.valueOf(item.get("start_time").toString()))
+                            .endTime(Double.valueOf(item.get("end_time").toString()))
+                            .orderIndex((Integer) item.get("order_index"))
+                            .translation((String) item.get("translation"))
+                            .ipa((String) item.get("ipa"))
+                            .lesson(savedLesson)
+                            .build();
+                    sentenceRepository.save(sentence);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi triệu hồi AI lần 2 rồi tiểu tử: " + e.getMessage());
+        }
+
+        return savedLesson;
     }
 
     // Xóa lesson
