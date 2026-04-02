@@ -63,7 +63,8 @@ export default function Recorder({ sentenceId, onResult }) {
       const token = getToken();
 
       // CẢNH BÁO: Nếu ngươi đi qua Java Server (8080), Java phải cấu trúc lại DTO để hứng được 'word_analysis'
-      const res = await fetch("http://localhost:8080/api/evaluate", {
+      // const res = await fetch("http://localhost:8080/api/evaluate", {
+      const res = await fetch("/api/evaluate", {
         method: "POST",
         headers: {
           ...(token && { Authorization: `Bearer ${token}` }),
