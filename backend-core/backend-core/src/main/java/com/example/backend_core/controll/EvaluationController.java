@@ -24,47 +24,46 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/evaluate")
-@CrossOrigin(origins = "http://localhost:5173")	
+@CrossOrigin(origins = { "http://localhost:5173", "http://localhost" })
 @RequiredArgsConstructor
 public class EvaluationController {
 
-    private final AIService aiService;
-    private final SentenceRepository sentenceRepository;
-    private final UserRepository userRepository;
-    private final EvaluationRepository evaluationRepository;
+        private final AIService aiService;
+        private final SentenceRepository sentenceRepository;
+        private final UserRepository userRepository;
+        private final EvaluationRepository evaluationRepository;
 
-    @PostMapping
-    public ResponseEntity<?> evaluate(
-            @RequestParam("audio") MultipartFile audio,
-            @RequestParam("sentenceId") Long sentenceId,
-            Authentication authentication  // ← bỏ userId param, thêm cái này
-    ) {
-        // Lấy user từ JWT token
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        @PostMapping
+        public ResponseEntity<?> evaluate(
+                        @RequestParam("audio") MultipartFile audio,
+                        @RequestParam("sentenceId") Long sentenceId,
+                        Authentication authentication // ← bỏ userId param, thêm cái này
+        ) {
+                // Lấy user từ JWT token
+                String username = authentication.getName();
+                User user = userRepository.findByUsername(username)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Lấy sentence từ DB
-        Sentence sentence = sentenceRepository.findById(sentenceId)
-                .orElseThrow(() -> new RuntimeException("Sentence not found"));
+                // Lấy sentence từ DB
+                Sentence sentence = sentenceRepository.findById(sentenceId)
+                                .orElseThrow(() -> new RuntimeException("Sentence not found"));
 
-        // Gọi Python AI
-        Map<String, Object> aiResult = aiService.evaluateAudio(
-                audio, sentence.getContent()
-        );
+                // Gọi Python AI
+                Map<String, Object> aiResult = aiService.evaluateAudio(
+                                audio, sentence.getContent());
 
-        // Lưu Evaluation vào DB
-        Evaluation evaluation = new Evaluation();
-        evaluation.setSentence(sentence);
-        evaluation.setUser(user);
-        evaluation.setTranscript(aiResult.get("transcript").toString());
-        evaluation.setExpectedTextSnapshot(sentence.getContent());
-        evaluation.setScore(Double.valueOf(aiResult.get("score").toString()));
-        evaluation.setMistakes(aiResult.get("mistakes").toString());
+                // Lưu Evaluation vào DB
+                Evaluation evaluation = new Evaluation();
+                evaluation.setSentence(sentence);
+                evaluation.setUser(user);
+                evaluation.setTranscript(aiResult.get("transcript").toString());
+                evaluation.setExpectedTextSnapshot(sentence.getContent());
+                evaluation.setScore(Double.valueOf(aiResult.get("score").toString()));
+                evaluation.setMistakes(aiResult.get("mistakes").toString());
 
-        evaluationRepository.save(evaluation);
+                evaluationRepository.save(evaluation);
 
-        return ResponseEntity.ok(aiResult);
-    }
-    
+                return ResponseEntity.ok(aiResult);
+        }
+
 }

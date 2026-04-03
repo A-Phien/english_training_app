@@ -13,7 +13,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-
 @Service
 public class AIService {
 
@@ -25,8 +24,8 @@ public class AIService {
 
     public Map<String, Object> evaluateAudio(MultipartFile audio, String expectedText) {
         try {
-            String url = "http://localhost:8000/evaluate";
-
+            // String url = "http://localhost:8000/evaluate";
+            String url = "http://ai-service:8000/evaluate";
             // Build multipart body
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("audio", new ByteArrayResource(audio.getBytes()) {
@@ -42,12 +41,10 @@ public class AIService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-            HttpEntity<MultiValueMap<String, Object>> request =
-                    new HttpEntity<>(body, headers);
+            HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
 
             ResponseEntity<Map> response = restTemplate.postForEntity(
-                    url, request, Map.class
-            );
+                    url, request, Map.class);
 
             return response.getBody();
 
