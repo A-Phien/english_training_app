@@ -71,87 +71,78 @@ async def get_transcript(video_id: str):
 
 
 # =====================
-# DỊCH + IPA (1 REQUEST)
+# DỊCH + IPA (batch)
 # =====================
 async def enrich_with_groq(sentences):
-    try:
+    """Dịch và lấy IPA cho các câu, chia nhỏ batch để tránh vượt max_tokens."""
+    BATCH_SIZE = 30
+    all_results = {}
+
+    for batch_start in range(0, len(sentences), BATCH_SIZE):
+        batch = sentences[batch_start : batch_start + BATCH_SIZE]
         numbered = "\n".join(
-            f'{i}|{s["content"]}' for i, s in enumerate(sentences)
+            f'{batch_start + i}|{s["content"]}' for i, s in enumerate(batch)
         )
 
-        # 1. SỬA THƯ LỆNH: Bắt buộc trả về JSON Object chứa key "data"
         prompt = f"""You are a language assistant.
 Each line has format: INDEX|ENGLISH_SENTENCE
 Translate each to Vietnamese and provide IPA (American English).
 
-Return ONLY a JSON array. No explanation, no markdown, no code block.
+Return ONLY a valid JSON array. No explanation, no markdown, no code block.
 Each object must have: "index" (integer), "translation", "ipa"
 The index must match exactly with input.
 
 Input:
 {numbered}"""
 
-        response = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2,
-            max_tokens=8000,
-        )
-       
+        try:
+            response = groq_client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                max_tokens=4096,
+            )
 
-        raw = response.choices[0].message.content.strip()
+            raw = response.choices[0].message.content.strip()
 
-        # Xử lý markdown thừa (nếu con AI ngu ngốc vẫn cố nhét vào)
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        raw = raw.strip()
+            # Strip markdown nếu có
+            if raw.startswith("```"):
+                raw = raw.split("```")[1]
+                if raw.startswith("json"):
+                    raw = raw[4:]
+            raw = raw.strip()
 
-        ai_results = json.loads(raw)
+            # Extract JSON array
+            start = raw.find("[")
+            end = raw.rfind("]") + 1
+            if start == -1 or end == 0:
+                raise ValueError("Không tìm thấy JSON array trong response")
 
-        if isinstance(ai_results, list):
-            data_list = ai_results
-        elif isinstance(ai_results, dict):
-            data_list = ai_results.get("data", [])
+            data_list = json.loads(raw[start:end])
+
+            for item in data_list:
+                if isinstance(item, dict) and "index" in item:
+                    all_results[item["index"]] = item
+
+            print(f"✓ Groq batch {batch_start}–{batch_start + len(batch) - 1} xong!")
+
+        except Exception as e:
+            import traceback
+            print(f"=== GROQ LỖI batch {batch_start}: {e} ===")
+            print(traceback.format_exc())
+
+    # Ghép kết quả vào sentences
+    for i, sentence in enumerate(sentences):
+        item = all_results.get(i)
+        if item:
+            sentence["translation"] = item.get("translation", "")
+            sentence["ipa"] = item.get("ipa", "")
         else:
-            data_list = []
+            sentence["translation"] = ""
+            sentence["ipa"] = ""
 
-        start = raw.find("[")
-        end = raw.rfind("]") + 1
-        if start == -1 or end == 0:
-            raise ValueError("Không tìm thấy JSON array trong response")
-
-        data_list = json.loads(raw[start:end])
-
-        # 2. SỬA LỖI TRÍCH XUẤT: Lôi cái mảng từ trong key "data" ra!
-        # data_list = ai_results.get("data", [])
-        
-        if not isinstance(data_list, list):
-            print("=== LỖI DỮ LIỆU: AI không trả về mảng trong key 'data' ===")
-            data_list = []
-
-        # Thay vì dùng index_map, map thẳng theo vị trí
-        for i, (sentence, item) in enumerate(zip(sentences, data_list)):
-            if isinstance(item, dict):
-                sentence["translation"] = item.get("translation", "")
-                sentence["ipa"] = item.get("ipa", "")
-            else:
-                sentence["translation"] = ""
-                sentence["ipa"] = ""
-
-
-        print(f"✓ Groq dịch xong {len(sentences)} câu!")
-        return sentences
-
-    except Exception as e:
-        import traceback
-        print(f"=== GROQ LỖI: {e} ===")
-        print(traceback.format_exc())
-        for s in sentences:
-            s["translation"] = ""
-            s["ipa"] = ""
-        return sentences
+    print(f"✓ Groq dịch xong tổng {len(sentences)} câu!")
+    return sentences
 
 
 # async def enrich_with_groq(sentences):
