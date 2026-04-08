@@ -40,7 +40,7 @@ public class UserService {
             throw new RuntimeException("Wrong password");
         }
 
-        String token = jwtUtil.generateToken(username);
+        String token = jwtUtil.generateToken(username, user.getRole());
 
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
