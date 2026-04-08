@@ -77,7 +77,7 @@ const Login = () => {
       }
 
       // ✅ Redirect sang trang danh sách bài học
-      window.location.href = "/lessons";
+      window.location.href = "/";
     } catch (err) {
       setError(err.message);
     } finally {
