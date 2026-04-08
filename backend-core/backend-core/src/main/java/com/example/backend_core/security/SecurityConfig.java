@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -34,7 +35,11 @@ public class SecurityConfig {
                         // Public routes
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/lessons/**").permitAll()
-                        .requestMatchers("/api/sentences/**").permitAll()
+                        // Sentences: ghi cần đăng nhập, đọc công khai
+                        .requestMatchers(HttpMethod.POST, "/api/sentences/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/sentences/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/sentences/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/sentences/**").permitAll()
                         // Protected routes
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

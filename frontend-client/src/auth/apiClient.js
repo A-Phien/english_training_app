@@ -4,8 +4,8 @@
 
 import { getToken, logout } from "./authUtils";
 
-// const BASE_URL = "http://localhost:8080"; // Thay bằng URL backend của bạn
-const BASE_URL = "";
+const BASE_URL = "http://localhost:8080"; // Thay bằng URL backend của bạn
+// const BASE_URL = "";
 
 /**
  * Wrapper quanh fetch, tự động:

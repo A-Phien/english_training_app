@@ -81,7 +81,7 @@ public class LessonController {
 
     // DELETE /api/lessons/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         lessonService.delete(id);
         return ResponseEntity.noContent().build();
     }
