@@ -24,8 +24,8 @@ public class AIService {
 
     public Map<String, Object> evaluateAudio(MultipartFile audio, String expectedText) {
         try {
-            // String url = "http://localhost:8000/evaluate";
-            String url = "http://ai-service:8000/evaluate";
+             String url = "http://localhost:8000/evaluate";
+//            String url = "http://ai-service:8000/evaluate";
             // Build multipart body
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("audio", new ByteArrayResource(audio.getBytes()) {

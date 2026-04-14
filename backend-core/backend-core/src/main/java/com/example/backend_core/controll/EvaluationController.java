@@ -1,11 +1,13 @@
 package com.example.backend_core.controll;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 //import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +21,7 @@ import com.example.backend_core.repository.EvaluationRepository;
 import com.example.backend_core.repository.SentenceRepository;
 import com.example.backend_core.repository.UserRepository;
 import com.example.backend_core.service.AIService;
+import com.google.gson.Gson;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,11 +37,11 @@ public class EvaluationController {
         private final EvaluationRepository evaluationRepository;
 
         @PostMapping
-        public ResponseEntity<?> evaluate(
+        public ResponseEntity<?> evaluate(	
                         @RequestParam("audio") MultipartFile audio,
                         @RequestParam("sentenceId") Long sentenceId,
                         Authentication authentication // ← bỏ userId param, thêm cái này
-        ) {
+        ) {	
                 // Lấy user từ JWT token
                 String username = authentication.getName();
                 User user = userRepository.findByUsername(username)
@@ -59,11 +62,26 @@ public class EvaluationController {
                 evaluation.setTranscript(aiResult.get("transcript").toString());
                 evaluation.setExpectedTextSnapshot(sentence.getContent());
                 evaluation.setScore(Double.valueOf(aiResult.get("score").toString()));
-                evaluation.setMistakes(aiResult.get("mistakes").toString());
-
+//                evaluation.setMistakes(aiResult.get("mistakes").toString());
+                Gson gson = new Gson();
+                evaluation.setMistakes(gson.toJson(aiResult.get("mistakes")));
+                
                 evaluationRepository.save(evaluation);
 
                 return ResponseEntity.ok(aiResult);
+        }
+        
+     // GET /api/evaluations/history — lấy lịch sử của user đang login
+        @GetMapping("/history")
+        public ResponseEntity<?> getHistory(Authentication authentication) {
+            String username = authentication.getName();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            List<Evaluation> history = evaluationRepository
+                    .findByUserIdOrderByCreatedAtDesc(user.getId());
+            
+            return ResponseEntity.ok(history);
         }
 
 }
