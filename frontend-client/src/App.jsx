@@ -5,6 +5,7 @@ import Header from "./Layout/header";
 import Footer from "./Layout/Footer";
 import Login from "./auth/login";
 import AdminDashboard from "./admin/LessonModal";
+import History from "./account/History";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/lesson/:id" element={<LessonDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/history" element={<History />} />
       </Routes>
       <Footer />
     </div>
