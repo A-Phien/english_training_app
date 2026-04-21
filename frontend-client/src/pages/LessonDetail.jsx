@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 // import "../assets/css/lessondetail.css";
 import Recorder from "./Recorder";
 import { api } from "../auth/apiClient";
+import ClickableSentence from "../components/ClickableSentence";
+import WordDictionaryPopup from "../components/WordDictionaryPopup";
 
 export default function LessonDetail() {
   const { id } = useParams();
@@ -25,6 +27,18 @@ export default function LessonDetail() {
   const intervalRef = useRef(null);
   const activeSentenceRef = useRef(null);
   const lastStoppedId = useRef(null);
+
+  // State Tra Từ Điển
+  const [activeWord, setActiveWord] = useState("");
+  const [popupPosition, setPopupPosition] = useState(null);
+
+  const handleWordClick = useCallback((word, event) => {
+    setActiveWord(word);
+    setPopupPosition({
+      top: event.clientY,
+      left: event.clientX,
+    });
+  }, []);
   // --- 3. LOAD YOUTUBE API ---
   useEffect(() => {
     if (!window.YT) {
@@ -255,8 +269,8 @@ export default function LessonDetail() {
               {activeSentenceData ? (
                 <>
                   {/* Tiếng Anh (Ngươi có thể ẩn đi nếu chỉ muốn tiếng Việt) */}
-                  <p className="text-xl font-bold text-gray-00 mb-2">
-                    {activeSentenceData.content}
+                  <p className="text-xl font-bold text-gray-900 mb-2">
+                    <ClickableSentence text={activeSentenceData.content} onWordClick={handleWordClick} />
                   </p>
                   {showTranslation && (
                     <p className="text-lg text-gray-600 font-light">
@@ -366,7 +380,7 @@ export default function LessonDetail() {
                       onClick={() => handleSentenceClick(sentence)}
                     >
                       <p className={`font-medium mb-1 ${isActive ? "text-gray-900" : "text-gray-800"}`}>
-                        {sentence.content}
+                        <ClickableSentence text={sentence.content} onWordClick={handleWordClick} />
                       </p>
                       {showTranslation && (
                         <p className="text-gray-500 text-sm mb-3">
@@ -398,6 +412,15 @@ export default function LessonDetail() {
           </div>
         </div>
       </div>
+
+      {/* POPUP TỰ ĐIỂN NỔI (Render ngoài cùng) */}
+      {activeWord && popupPosition && (
+        <WordDictionaryPopup
+          word={activeWord}
+          position={popupPosition}
+          onClose={() => setActiveWord("")}
+        />
+      )}
     </div>
   );
 }
