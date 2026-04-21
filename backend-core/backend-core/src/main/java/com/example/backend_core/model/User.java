@@ -27,7 +27,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
 
     @Column(nullable = false)
@@ -41,6 +41,13 @@ public class User {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    
+    @Column(name = "google_id", unique = true)
+    private String googleId; // lưu Google sub/id
+
+    @Column(name = "avatar_url")
+    private String avatarUrl; // ảnh đại diện từ Google
+    
 
     @PrePersist
     protected void onCreate() {
