@@ -32,4 +32,12 @@ public class AuthController {
         return ResponseEntity.ok(
                 userService.login(body.get("username"), body.get("password")));
     }
+    
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(
+            userService.loginWithGoogle(body.get("token"))
+        );
+    }
+    
 }
