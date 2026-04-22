@@ -6,6 +6,7 @@ import Footer from "./Layout/Footer";
 import Login from "./auth/login";
 import AdminDashboard from "./admin/LessonModal";
 import History from "./account/History";
+import Vocabulary from "./pages/Vocabulary";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/history" element={<History />} />
+        <Route path="/vocabulary" element={<Vocabulary />} />
       </Routes>
       <Footer />
     </div>

@@ -35,6 +35,7 @@ public class SecurityConfig {
                         // Public routes
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/lessons/**").permitAll()
+                        .requestMatchers("/api/topics/**").permitAll()
                         // Sentences: ghi cần đăng nhập, đọc công khai
                         .requestMatchers(HttpMethod.POST, "/api/sentences/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/sentences/**").authenticated()
