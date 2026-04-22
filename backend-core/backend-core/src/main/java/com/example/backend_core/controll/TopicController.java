@@ -45,7 +45,7 @@ public class TopicController {
         if (!topicRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        List<Vocabulary> list = vocabularyRepository.findByTopicId(id);
+        List<Vocabulary> list = vocabularyRepository.findByTopic_Id(id);
         return ResponseEntity.ok(list);
     }
 }

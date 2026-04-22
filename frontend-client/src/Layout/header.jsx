@@ -13,7 +13,7 @@ const Header = () => {
       <nav className="nav-menu">
         <ul>
           <li><a href="/">Bài học</a></li>
-          <li><a href="#vocabulary">Từ vựng</a></li>
+          <li><a href="vocabulary">Từ vựng</a></li>
           <li><a href="#practice">Thực chiến</a></li>
           <li><a href="#rank">Bảng vàng</a></li>
         </ul>
