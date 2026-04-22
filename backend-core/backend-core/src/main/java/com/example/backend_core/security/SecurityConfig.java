@@ -35,11 +35,16 @@ public class SecurityConfig {
                         // Public routes
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/lessons/**").permitAll()
+                        // .requestMatchers("/api/topics/**").permitAll()
                         // Sentences: ghi cần đăng nhập, đọc công khai
                         .requestMatchers(HttpMethod.POST, "/api/sentences/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/sentences/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/sentences/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/sentences/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/topics/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/topics/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/topics/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/topics/**").permitAll()
                         // Protected routes
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
