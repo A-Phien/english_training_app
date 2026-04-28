@@ -44,6 +44,8 @@ uvicorn main:app --reload --port 8000
 3: Cấu hình lại src/main/resources/application.properties để trỏ đúng vào DB local 
 
 4: Run Spring Boot
+.\mvnw spring-boot:run
+
 
 # Thư mục Frontend-Client
 
