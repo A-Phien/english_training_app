@@ -7,6 +7,7 @@ import Login from "./auth/login";
 import AdminDashboard from "./admin/LessonModal";
 import History from "./account/History";
 import Vocabulary from "./pages/Vocabulary";
+import VocabularyManager from "./admin/VocabularyManager";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/lesson/:id" element={<LessonDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/vocabulary" element={<VocabularyManager />} />
         <Route path="/history" element={<History />} />
         <Route path="/vocabulary" element={<Vocabulary />} />
       </Routes>

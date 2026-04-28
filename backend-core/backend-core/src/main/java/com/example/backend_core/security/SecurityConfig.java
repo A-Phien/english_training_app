@@ -45,6 +45,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/topics/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/topics/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/topics/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/vocabularies/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/vocabularies/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/vocabularies/**").permitAll()
                         // Protected routes
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

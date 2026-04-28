@@ -37,6 +37,7 @@ public class AuthController {
     public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> body) {
         return ResponseEntity.ok(
             userService.loginWithGoogle(body.get("token"))
+            
         );
     }
     
