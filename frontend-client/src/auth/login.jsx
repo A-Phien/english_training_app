@@ -200,11 +200,13 @@ const Login = () => {
         saveToken(data.token);
       }
 
-      if (data.user) {
-        saveUser(data.user);
-      } else {
-        saveUser(data);
-      }
+      // Lưu thông tin user riêng (không lưu token vào user object)
+      saveUser({
+        userId: data.userId,
+        username: data.username,
+        role: data.role,
+        avatarUrl: data.avatarUrl || null,
+      });
 
       window.location.href = "/";
     } catch (err) {
@@ -235,7 +237,12 @@ const Login = () => {
         saveToken(data.token);
       }
 
-      saveUser(data);
+      saveUser({
+        userId: data.userId,
+        username: data.username,
+        role: data.role,
+        avatarUrl: data.avatarUrl || null,
+      });
       window.location.href = "/";
     } catch (err) {
       setError(err.message);

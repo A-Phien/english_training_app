@@ -1,15 +1,33 @@
 // Tệp: Sidebar.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Sidebar({ user, lessonCount, onNavigateHome, onLogout, onAddLesson }) {
+    const navigate = useNavigate();
     return (
         <aside className="w-full lg:w-72 flex-shrink-0 flex flex-col gap-6">
 
             {/* Lệnh Bài Quản Sự & Thông Tin */}
             <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-stone-100 flex flex-col items-center text-center">
-                <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 text-3xl mb-4 shadow-inner">
-                    🌿
+                <div className="w-20 h-20 mb-4 shadow-inner">
+                    {user?.avatarUrl ? (
+                        <img
+                            src={user.avatarUrl}
+                            alt="Avatar"
+                            className="w-full h-full rounded-full object-cover border-2 border-amber-100"
+                            onError={(e) => {
+                                // Ngăn chặn vòng lặp vô hạn nếu ảnh fallback cũng lỗi
+                                e.target.onerror = null;
+                                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.username || 'U')}&background=fef3c7&color=d97706`;
+                            }}
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-amber-100 rounded-full flex items-center justify-center text-amber-600 text-3xl font-bold">
+                            {user?.username?.charAt(0).toUpperCase() || "A"}
+                        </div>
+                    )}
                 </div>
+
                 <h2 className="text-xl font-bold">{user?.username || "Ẩn danh"}</h2>
                 <span className="text-xs font-bold text-amber-700 bg-amber-50 px-4 py-1.5 rounded-full mt-3 tracking-wide uppercase">
                     {user?.role || "CHƯỞNG MÔN"}
@@ -54,6 +72,13 @@ export default function Sidebar({ user, lessonCount, onNavigateHome, onLogout, o
                     className="w-full py-4 bg-stone-800 text-white rounded-2xl hover:bg-stone-700 transition-all font-medium flex justify-center items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-1"
                 >
                     <span className="text-lg">+</span> Khai bút bài mới
+                </button>
+
+                <button
+                    onClick={() => navigate("/admin/vocabulary")}
+                    className="w-full mt-3 py-3 bg-indigo-50 text-indigo-700 rounded-2xl hover:bg-indigo-100 transition-all font-medium flex justify-center items-center gap-2 text-sm border border-indigo-200"
+                >
+                    📚 Quản lý từ vựng
                 </button>
 
                 <div className="mt-auto pt-6 text-center text-xs text-stone-400">

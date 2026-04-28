@@ -4,8 +4,12 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,5 +51,56 @@ public class TopicController {
         }
         List<Vocabulary> list = vocabularyRepository.findByTopic_Id(id);
         return ResponseEntity.ok(list);
+    }
+
+    // POST /api/topics → Tạo chủ đề mới
+    @PostMapping
+    public ResponseEntity<Topic> createTopic(@RequestBody Topic topic) {
+        Topic saved = topicRepository.save(topic);
+        return ResponseEntity.ok(saved);
+    }
+
+    // PUT /api/topics/{id} → Sửa chủ đề
+    @PutMapping("/{id}")
+    public ResponseEntity<Topic> updateTopic(@PathVariable Long id, @RequestBody Topic updated) {
+        return topicRepository.findById(id).map(existing -> {
+            existing.setName(updated.getName());
+            existing.setDescription(updated.getDescription());
+            existing.setIcon(updated.getIcon());
+            return ResponseEntity.ok(topicRepository.save(existing));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // DELETE /api/topics/{id} → Xóa chủ đề (cascade xóa từ vựng bên trong)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTopic(@PathVariable Long id) {
+        if (!topicRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        topicRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // POST /api/topics/{id}/vocabularies → Thêm 1 từ vựng vào chủ đề
+    @PostMapping("/{id}/vocabularies")
+    public ResponseEntity<Vocabulary> addVocabulary(
+            @PathVariable Long id,
+            @RequestBody Vocabulary vocab) {
+        return topicRepository.findById(id).map(topic -> {
+            vocab.setTopic(topic);
+            return ResponseEntity.ok(vocabularyRepository.save(vocab));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // POST /api/topics/{id}/vocabularies/batch → Import hàng loạt từ Excel
+    @PostMapping("/{id}/vocabularies/batch")
+    public ResponseEntity<List<Vocabulary>> addVocabularyBatch(
+            @PathVariable Long id,
+            @RequestBody List<Vocabulary> vocabList) {
+        return topicRepository.findById(id).map(topic -> {
+            vocabList.forEach(v -> v.setTopic(topic));
+            List<Vocabulary> saved = vocabularyRepository.saveAll(vocabList);
+            return ResponseEntity.ok(saved);
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

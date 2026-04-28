@@ -3,6 +3,7 @@ package com.example.backend_core.service;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,6 +55,7 @@ public class UserService {
         result.put("userId", user.getId());
         result.put("username", user.getUsername());
         result.put("role", user.getRole());
+        result.put("avatarUrl", user.getAvatarUrl()); // null nếu không có avatar
 
         return result;
     }
@@ -94,7 +96,8 @@ public class UserService {
                 User newUser = new User();
                 newUser.setEmail(email);
                 newUser.setUsername(email); // dùng email làm username
-                newUser.setPassword(null);  // user Google không có password
+//                newUser.setPassword(null);  // user Google không có password
+                newUser.setPassword("GOOGLE_AUTH_" + UUID.randomUUID().toString()); // password ngẫu nhiên, không dùng để login
                 newUser.setGoogleId(googleId);
                 newUser.setAvatarUrl(avatarUrl);
                 newUser.setRole("USER");
@@ -105,6 +108,7 @@ public class UserService {
             // Nếu user đã tồn tại nhưng chưa có googleId → cập nhật
             if (user.getGoogleId() == null) {
                 user.setGoogleId(googleId);
+                user.setAvatarUrl(avatarUrl);
                 userRepository.save(user);
             }
 
@@ -114,6 +118,7 @@ public class UserService {
             result.put("userId", user.getId());
             result.put("username", user.getUsername());
             result.put("role", user.getRole());
+            result.put("avatarUrl", user.getAvatarUrl()); // URL ảnh từ Google
             return result;
 
         } catch (Exception e) {
