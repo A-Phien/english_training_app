@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import { api } from "../auth/apiClient";
+import { getToken } from "../auth/authUtils";
 
 export default function WordDictionaryPopup({ word, position, onClose }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
+  const [saveStatus, setSaveStatus] = useState(null); // null | 'saving' | 'saved' | 'exists'
   const popupRef = useRef(null);
   const audioRef = useRef(null);
 
@@ -190,7 +193,36 @@ export default function WordDictionaryPopup({ word, position, onClose }) {
             </div>
             <p className="font-semibold text-lg">{data?.mainTranslation}</p>
           </div>
+
+
+          {/* Nút lưu từ vựng - chỉ hiện khi có data và đã đăng nhập */}
+          {!loading && data && getToken() && (
+            <button
+              onClick={async () => {
+                setSaveStatus('saving');
+                try {
+                  const res = await api.post('/api/user-vocabulary', {
+                    word: data.word,
+                    ipa: data.phonetics?.[0]?.text || '',
+                    translation: data.mainTranslation,
+                  });
+                  const result = await res.json();
+                  setSaveStatus(result.saved ? 'saved' : 'exists');
+                } catch {
+                  setSaveStatus(null);
+                }
+              }}
+              disabled={saveStatus === 'saving' || saveStatus === 'saved' || saveStatus === 'exists'}
+              className={`w-full mt-1 py-2 rounded-xl text-sm font-semibold transition-all
+                ${saveStatus === 'saved' ? 'bg-green-50 text-green-700 cursor-default'
+                  : saveStatus === 'exists' ? 'bg-gray-50 text-gray-400 cursor-default'
+                    : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}
+            >
+              {saveStatus === 'saving' ? '...' : saveStatus === 'saved' ? '✅ Đã lưu!' : saveStatus === 'exists' ? '📌 Đã có trong sổ' : '💾 Lưu từ vựng'}
+            </button>
+          )}
         </div>
+
       )}
 
       <audio ref={audioRef} className="hidden" />

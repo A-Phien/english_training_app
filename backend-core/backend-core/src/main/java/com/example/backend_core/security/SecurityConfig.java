@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/vocabularies/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/vocabularies/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/vocabularies/**").permitAll()
+                        // User vocabulary — cần đăng nhập
+                        .requestMatchers("/api/user-vocabulary/**").authenticated()
                         // Protected routes
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
