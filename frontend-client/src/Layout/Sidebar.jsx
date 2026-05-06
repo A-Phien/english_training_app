@@ -1,9 +1,11 @@
 // Tệp: Sidebar.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Sidebar({ user, lessonCount, onNavigateHome, onLogout, onAddLesson }) {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     return (
         <aside className="w-full lg:w-72 flex-shrink-0 flex flex-col gap-6">
 
@@ -28,9 +30,9 @@ export default function Sidebar({ user, lessonCount, onNavigateHome, onLogout, o
                     )}
                 </div>
 
-                <h2 className="text-xl font-bold">{user?.username || "Ẩn danh"}</h2>
+                <h2 className="text-xl font-bold">{user?.username || t("sidebar.anonymous")}</h2>
                 <span className="text-xs font-bold text-amber-700 bg-amber-50 px-4 py-1.5 rounded-full mt-3 tracking-wide uppercase">
-                    {user?.role || "CHƯỞNG MÔN"}
+                    {user?.role || t("sidebar.role")}
                 </span>
 
                 <div className="w-full h-px bg-stone-100 my-6" />
@@ -38,10 +40,10 @@ export default function Sidebar({ user, lessonCount, onNavigateHome, onLogout, o
                 {/* Các chức năng cá nhân bổ sung */}
                 <div className="w-full flex flex-col gap-2 mb-6">
                     <button className="w-full py-2.5 bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-900 text-sm font-medium rounded-xl transition-colors">
-                        ⚙️ Tu sửa thông tin
+                        {t("sidebar.editInfo")}
                     </button>
                     <button className="w-full py-2.5 bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-900 text-sm font-medium rounded-xl transition-colors">
-                        📜 Lịch sử tu luyện
+                        {t("sidebar.history")}
                     </button>
                 </div>
 
@@ -52,37 +54,37 @@ export default function Sidebar({ user, lessonCount, onNavigateHome, onLogout, o
                     onClick={onNavigateHome}
                     className="w-full py-2.5 text-stone-500 hover:text-stone-800 text-sm font-medium transition-colors mb-2"
                 >
-                    ← Về sơn môn
+                    {t("sidebar.goHome")}
                 </button>
                 <button
                     onClick={onLogout}
                     className="w-full py-2.5 text-rose-400 hover:text-rose-600 text-sm font-medium transition-colors"
                 >
-                    Rời khỏi Tàng Kinh Các
+                    {t("sidebar.logoutLabel")}
                 </button>
             </div>
 
             {/* Bàn Làm Việc - Thao Tác Ký Lục */}
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-stone-100 flex-1 flex flex-col">
                 <h3 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">
-                    Thao Tác Ký Lục
+                    {t("sidebar.operations")}
                 </h3>
                 <button
                     onClick={onAddLesson}
                     className="w-full py-4 bg-stone-800 text-white rounded-2xl hover:bg-stone-700 transition-all font-medium flex justify-center items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-1"
                 >
-                    <span className="text-lg">+</span> Khai bút bài mới
+                    <span className="text-lg">+</span> {t("sidebar.addLesson")}
                 </button>
 
                 <button
                     onClick={() => navigate("/admin/vocabulary")}
                     className="w-full mt-3 py-3 bg-indigo-50 text-indigo-700 rounded-2xl hover:bg-indigo-100 transition-all font-medium flex justify-center items-center gap-2 text-sm border border-indigo-200"
                 >
-                    📚 Quản lý từ vựng
+                    {t("sidebar.manageVocab")}
                 </button>
 
                 <div className="mt-auto pt-6 text-center text-xs text-stone-400">
-                    Tổng cộng: {lessonCount} bí kíp
+                    {t("sidebar.totalLessons", { count: lessonCount })}
                 </div>
             </div>
         </aside>

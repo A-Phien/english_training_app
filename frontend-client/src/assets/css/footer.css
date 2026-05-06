@@ -1,37 +1,37 @@
 .main-footer {
-    background-color: #f9f9f9; /* Xám cực nhẹ, phân biệt với phần thân trắng */
+    background-color: var(--footer-bg);
     padding: 4rem 2rem 1.5rem;
-    border-top: 1px solid #eee;
-    color: #333;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
 }
 
 .footer-container {
     max-width: 1100px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr; /* Chia tỉ lệ cột */
+    grid-template-columns: 2fr 1fr 1fr;
     gap: 40px;
 }
 
 .footer-logo {
     font-size: 1.25rem;
-    font-weight: 700;
+    font-weight: 800;
     margin-bottom: 1rem;
-    color: #1a1a1a;
+    color: var(--text-primary);
 }
 
 .footer-info p {
-    font-size: 0.9rem;
-    color: #666;
-    line-height: 1.6;
-    max-width: 300px;
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 320px;
 }
 
 .footer-links h4 {
     font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 1.2rem;
-    color: #1a1a1a;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
 }
 
 .footer-links ul {
@@ -46,28 +46,26 @@
 
 .footer-links a {
     text-decoration: none;
-    color: #666;
-    font-size: 0.85rem;
-    transition: color 0.2s;
+    color: var(--text-secondary);
+    font-size: 0.86rem;
 }
 
 .footer-links a:hover {
-    color: #000;
+    color: var(--text-primary);
 }
 
 .footer-bottom {
     margin-top: 3rem;
     padding-top: 1.5rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-color);
     text-align: center;
 }
 
 .footer-bottom p {
     font-size: 0.8rem;
-    color: #999;
+    color: var(--text-muted);
 }
 
-/* Cho lũ dùng điện thoại (Mobile) */
 @media (max-width: 768px) {
     .footer-container {
         grid-template-columns: 1fr;

@@ -1,30 +1,33 @@
 import React from 'react';
 import '../assets/css/footer.css';
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
     <footer className="main-footer">
       <div className="footer-container">
         <div className="footer-info">
           <h2 className="footer-logo">ENG-LAB</h2>
-          <p>Nơi rèn luyện kỹ năng, đột phá giới hạn ngoại ngữ cho nam nhân Việt.</p>
+          <p>{t("footer.tagline")}</p>
         </div>
 
         <div className="footer-links">
-          <h4>Khám phá</h4>
+          <h4>{t("footer.explore")}</h4>
           <ul>
-            <li><a href="/courses">Khóa học</a></li>
-            <li><a href="/grammar">Ngữ pháp</a></li>
-            <li><a href="/vocabulary">Từ vựng</a></li>
+            <li><a href="/courses">{t("footer.courses")}</a></li>
+            <li><a href="/grammar">{t("footer.grammar")}</a></li>
+            <li><a href="/vocabulary">{t("footer.vocabulary")}</a></li>
           </ul>
         </div>
 
         <div className="footer-links">
-          <h4>Hỗ trợ</h4>
+          <h4>{t("footer.support")}</h4>
           <ul>
-            <li><a href="/faq">Câu hỏi thường gặp</a></li>
-            <li><a href="/contact">Liên hệ</a></li>
-            <li><a href="/privacy">Điều khoản</a></li>
+            <li><a href="/faq">{t("footer.faq")}</a></li>
+            <li><a href="/contact">{t("footer.contact")}</a></li>
+            <li><a href="/privacy">{t("footer.terms")}</a></li>
           </ul>
         </div>
       </div>

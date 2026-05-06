@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { getToken } from "../auth/authUtils";
+import { useTranslation } from "react-i18next";
 
 export default function Recorder({ sentenceId, onResult }) {
   const [recording, setRecording] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const { t } = useTranslation();
 
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
@@ -41,7 +43,7 @@ export default function Recorder({ sentenceId, onResult }) {
       recorder.start();
       setRecording(true);
     } catch (err) {
-      alert("Lỗi truy cập Micro. Hãy cấp quyền cho trình duyệt!");
+      alert(t("recorder.micError"));
     }
   };
 
@@ -72,13 +74,13 @@ export default function Recorder({ sentenceId, onResult }) {
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Server AI đang tẩu hỏa nhập ma!");
+      if (!res.ok) throw new Error(t("recorder.serverError"));
 
       const data = await res.json();
       setResult(data);
       onResult?.(data);
     } catch (err) {
-      alert("Lỗi nộp bài: " + err.message);
+      alert(t("recorder.uploadError") + err.message);
     } finally {
       setLoading(false);
     }
@@ -98,10 +100,10 @@ export default function Recorder({ sentenceId, onResult }) {
         {recording ? (
           <>
             <span className="w-3 h-3 bg-white rounded-full mr-2 animate-bounce"></span>
-            Đang ghi âm... Nhấn để Dừng
+            {t("recorder.recording")}
           </>
         ) : (
-          "🎙 Bắt đầu đọc câu này"
+          t("recorder.start")
         )}
       </button>
 
@@ -109,7 +111,7 @@ export default function Recorder({ sentenceId, onResult }) {
       {loading && (
         <div className="mt-4 text-blue-500 font-medium flex items-center">
           <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-          AI đang nghiền ngẫm giọng nói của ngươi...
+          {t("recorder.aiLoading")}
         </div>
       )}
 
@@ -123,7 +125,7 @@ export default function Recorder({ sentenceId, onResult }) {
               {result.score}/100
             </div>
             <p className="text-gray-500 text-sm mt-1 uppercase tracking-wider font-semibold">
-              {result.score >= 80 ? 'Khí thế ngút trời!' : 'Phải rèn luyện thêm!'}
+              {result.score >= 80 ? t("recorder.excellent") : t("recorder.needPractice")}
             </p>
           </div>
 
@@ -131,7 +133,7 @@ export default function Recorder({ sentenceId, onResult }) {
 
           {/* HIỂN THỊ CÂU ĐƯỢC TÔ MÀU (HUYỄN SẮC KHÁM PHÁ) */}
           <div className="mb-4 text-center">
-            <p className="text-sm text-gray-400 font-semibold mb-2 uppercase">Chi tiết soi lỗi:</p>
+            <p className="text-sm text-gray-400 font-semibold mb-2 uppercase">{t("recorder.detailLabel")}</p>
             <div className="text-2xl font-bold leading-relaxed flex flex-wrap gap-2 justify-center">
               {result.mistakes?.word_analysis?.map((item, index) => {
                 let colorClass = "";
@@ -149,8 +151,8 @@ export default function Recorder({ sentenceId, onResult }) {
 
           {/* Dịch lại những gì User thực sự nói ra */}
           <div className="mt-6 bg-gray-50 rounded-lg p-4 text-center">
-            <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Ngươi đã phát ra âm thanh này:</p>
-            <p className="text-gray-800 italic">"{result.transcript || "Không nghe thấy gì..."}"</p>
+            <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">{t("recorder.userSaid")}</p>
+            <p className="text-gray-800 italic">"{result.transcript || t("recorder.noAudio")}"</p>
           </div>
 
         </div>

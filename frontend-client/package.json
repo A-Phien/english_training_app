@@ -14,8 +14,10 @@
     "@tailwindcss/postcss": "^4.2.2",
     "@tailwindcss/vite": "^4.2.2",
     "axios": "^1.13.6",
+    "i18next": "^26.0.9",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-i18next": "^17.0.6",
     "react-router-dom": "^7.13.1",
     "xlsx": "^0.18.5"
   },
