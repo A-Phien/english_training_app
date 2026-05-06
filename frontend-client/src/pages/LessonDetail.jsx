@@ -5,6 +5,7 @@ import Recorder from "./Recorder";
 import { api } from "../auth/apiClient";
 import ClickableSentence from "../components/ClickableSentence";
 import WordDictionaryPopup from "../components/WordDictionaryPopup";
+import DictationBox from "../components/DictationBox";
 
 export default function LessonDetail() {
   const { id } = useParams();
@@ -209,6 +210,21 @@ export default function LessonDetail() {
     setActiveSentenceId(sentence.id);
   }, []);
 
+  // Nhảy sang câu tiếp theo trong danh sách (dùng cho Dictation)
+  const handleNextSentence = useCallback(() => {
+    if (!sentences.length || !activeSentenceId) return;
+    const currentIndex = sentences.findIndex((s) => s.id === activeSentenceId);
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < sentences.length) {
+      const next = sentences[nextIndex];
+      setActiveSentenceId(next.id);
+      // Cuộn activeSentenceRef vào view
+      if (activeSentenceRef.current) {
+        activeSentenceRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }, [sentences, activeSentenceId]);
+
   const formatTime = (timeInSeconds) => {
     if (!timeInSeconds || isNaN(timeInSeconds)) return "0:00";
     const m = Math.floor(timeInSeconds / 60);
@@ -288,10 +304,8 @@ export default function LessonDetail() {
                   {/* --- PHẦN 2: PHÁP TRƯỜNG SHADOWING (Chỉ hiện khi ở tab Shadowing) --- */}
                   {activeTab === 'shadowing' && (
                     <div className="w-full pt-6 border-t border-gray-100 animate-fade-in mt-4">
-                      {/* Triệu hồi Máy Ghi Âm và Hệ thống Chấm điểm tại đây */}
                       <Recorder
                         sentenceId={activeSentenceData.id}
-                      // expectedText={activeSentenceData.content}
                       />
                     </div>
                   )}
@@ -366,9 +380,31 @@ export default function LessonDetail() {
               {sentences.length === 0 ? (
                 <div className="text-center text-gray-400 py-10">Đang tải dữ liệu...</div>
               ) : (
-                sentences.map((sentence) => {
+                sentences.map((sentence, index) => {
                   const isActive = sentence.id === activeSentenceId;
 
+                  // ── Chế độ DICTATION: mỗi card có DictationBox riêng ──
+                  if (activeTab === 'dictation') {
+                    return (
+                      <div
+                        key={sentence.id}
+                      // ref={isActive ? activeSentenceRef : null}
+                      // className={`p-4 rounded-xl border transition-all
+                      //   ${isActive
+                      //     ? "bg-gray-900 border-indigo-500 shadow-md"
+                      //     : "bg-gray-800 border-gray-700 hover:border-gray-500"}`}
+                      // style={{ background: isActive ? "#12172b" : "#1a2035" }}
+                      >
+                        <DictationBox
+                          sentence={{ ...sentence, orderIndex: index }}
+                          playerRef={playerRef}
+                          showTranslation={showTranslation}
+                        />
+                      </div>
+                    );
+                  }
+
+                  // ── Chế độ thường (Shadowing / Teleprompter) ──
                   return (
                     <div
                       key={sentence.id}
@@ -384,24 +420,16 @@ export default function LessonDetail() {
                       </p>
                       {showTranslation && (
                         <p className="text-gray-500 text-sm mb-3">
-                          {sentence.ipa}
-                          <br />
-                          {sentence.translation}
+                          {sentence.ipa}<br />{sentence.translation}
                         </p>
                       )}
-
                       <div className="flex items-center justify-between mt-2">
                         <button
                           className="bg-sky-400 hover:bg-sky-500 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Ngăn click nhầm vào box cha
-                            handleSentenceClick(sentence);
-                          }}
+                          onClick={(e) => { e.stopPropagation(); handleSentenceClick(sentence); }}
                         >
                           Nghe lại
                         </button>
-
-
                       </div>
                     </div>
                   );

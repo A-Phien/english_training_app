@@ -7,6 +7,7 @@ import Login from "./auth/login";
 import AdminDashboard from "./admin/LessonModal";
 import History from "./account/History";
 import Vocabulary from "./pages/Vocabulary";
+import AccountDashboard from "./account/AccountDashboard";
 import VocabularyManager from "./admin/VocabularyManager";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/admin/vocabulary" element={<VocabularyManager />} />
         <Route path="/history" element={<History />} />
         <Route path="/vocabulary" element={<Vocabulary />} />
+        <Route path="/account" element={<AccountDashboard />} />
       </Routes>
       <Footer />
     </div>
