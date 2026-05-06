@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { api } from "../auth/apiClient";
 
 // ─────────────────────────────────────────────
@@ -7,14 +6,14 @@ import { api } from "../auth/apiClient";
 // ─────────────────────────────────────────────
 function TopicGrid({ topics, onSelect }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--page-bg-soft),var(--page-bg))] text-[var(--text-primary)]">
       <div className="max-w-5xl mx-auto px-6 py-12">
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
+          <h1 className="text-4xl font-extrabold tracking-tight mb-3 text-[var(--text-primary)]">
             📚 Học Từ Vựng
           </h1>
-          <p className="text-gray-500 text-lg">Chọn một chủ đề để bắt đầu học hôm nay</p>
+          <p className="text-lg text-[var(--text-secondary)]">Chọn một chủ đề để bắt đầu học hôm nay</p>
         </div>
 
         {topics.length === 0 ? (
@@ -28,7 +27,7 @@ function TopicGrid({ topics, onSelect }) {
               <button
                 key={topic.id}
                 onClick={() => onSelect(topic)}
-                className="group relative bg-white rounded-2xl p-6 shadow-sm border border-gray-100
+                className="group relative rounded-2xl p-6 shadow-sm border bg-[var(--surface-bg)] border-[var(--border-color)]
                            hover:shadow-xl hover:-translate-y-1 hover:border-indigo-200
                            transition-all duration-300 text-left"
               >
@@ -36,12 +35,12 @@ function TopicGrid({ topics, onSelect }) {
                 <div className="text-4xl mb-4">{topic.icon || "📖"}</div>
 
                 {/* Tên chủ đề */}
-                <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">
+                <h3 className="mb-1 text-xl font-bold text-[var(--text-primary)] transition-colors group-hover:text-indigo-600">
                   {topic.name}
                 </h3>
 
                 {/* Mô tả */}
-                <p className="text-sm text-gray-500 mb-4 min-h-[40px]">
+                <p className="mb-4 min-h-[40px] text-sm text-[var(--text-secondary)]">
                   {topic.description || "Luyện tập từ vựng theo chủ đề này"}
                 </p>
 
@@ -50,7 +49,7 @@ function TopicGrid({ topics, onSelect }) {
                   <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
                     {topic.wordCount} từ vựng
                   </span>
-                  <span className="text-gray-300 group-hover:text-indigo-400 transition-colors text-lg">→</span>
+                  <span className="text-lg text-[var(--text-muted)] transition-colors group-hover:text-indigo-400">→</span>
                 </div>
 
                 {/* Gradient overlay khi hover */}
@@ -79,21 +78,21 @@ function VocabularyList({ topic, words, onBack, onStartFlashcard }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--page-bg-soft),var(--page-bg))] text-[var(--text-primary)]">
       <div className="max-w-4xl mx-auto px-6 py-10">
 
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={onBack}
-            className="text-sm text-gray-500 hover:text-gray-800 flex items-center gap-1 transition-colors"
+            className="flex items-center gap-1 text-sm transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
             ← Quay lại
           </button>
-          <div className="w-px h-4 bg-gray-200" />
+          <div className="w-px h-4 bg-[var(--border-color)]" />
           <div className="flex items-center gap-2">
             <span className="text-2xl">{topic.icon || "📖"}</span>
-            <h2 className="text-xl font-bold text-gray-900">{topic.name}</h2>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">{topic.name}</h2>
           </div>
           <span className="ml-auto text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
             {words.length} từ
@@ -102,7 +101,7 @@ function VocabularyList({ topic, words, onBack, onStartFlashcard }) {
 
         {/* Công cụ */}
         <div className="flex items-center justify-between mb-6">
-          <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-gray-600">
+          <label className="flex items-center gap-2 cursor-pointer select-none text-sm text-[var(--text-secondary)]">
             <div
               className={`w-10 h-5 flex items-center rounded-full p-0.5 transition-colors duration-300 ${showTranslation ? "bg-indigo-500" : "bg-gray-300"}`}
               onClick={() => setShowTranslation(!showTranslation)}
@@ -126,17 +125,17 @@ function VocabularyList({ topic, words, onBack, onStartFlashcard }) {
           {words.map((vocab, index) => (
             <div
               key={vocab.id}
-              className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm
+              className="rounded-xl border p-4 shadow-sm bg-[var(--surface-bg)] border-[var(--border-color)]
                          hover:border-indigo-200 hover:shadow-md transition-all group"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   {/* Số thứ tự + Từ tiếng Anh */}
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs text-gray-400 font-mono">{String(index + 1).padStart(2, "0")}</span>
-                    <span className="text-base font-bold text-gray-900">{vocab.word}</span>
+                    <span className="text-xs font-mono text-[var(--text-muted)]">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="text-base font-bold text-[var(--text-primary)]">{vocab.word}</span>
                     {vocab.ipa && (
-                      <span className="text-xs text-gray-400 font-mono">{vocab.ipa}</span>
+                      <span className="text-xs font-mono text-[var(--text-muted)]">{vocab.ipa}</span>
                     )}
                   </div>
 
@@ -147,15 +146,14 @@ function VocabularyList({ topic, words, onBack, onStartFlashcard }) {
 
                   {/* Câu ví dụ */}
                   {showTranslation && vocab.example && (
-                    <p className="text-xs text-gray-400 italic pl-7 mt-1">"{vocab.example}"</p>
+                    <p className="mt-1 pl-7 text-xs italic text-[var(--text-muted)]">"{vocab.example}"</p>
                   )}
                 </div>
 
                 {/* Nút phát âm */}
                 <button
                   onClick={() => playAudio(vocab.word)}
-                  className="ml-2 w-8 h-8 flex items-center justify-center rounded-full
-                             text-gray-300 hover:text-indigo-500 hover:bg-indigo-50 transition-all"
+                  className="ml-2 flex h-8 w-8 items-center justify-center rounded-full text-[var(--text-muted)] transition-all hover:bg-indigo-50 hover:text-indigo-500"
                   title="Phát âm"
                 >
                   🔊
@@ -174,7 +172,7 @@ function VocabularyList({ topic, words, onBack, onStartFlashcard }) {
           >
             🃏 Bắt Đầu Luyện Tập Flashcard
           </button>
-          <p className="text-sm text-gray-400 mt-2">Tự kiểm tra trí nhớ của bạn sau khi đã học xong!</p>
+          <p className="mt-2 text-sm text-[var(--text-muted)]">Tự kiểm tra trí nhớ của bạn sau khi đã học xong!</p>
         </div>
       </div>
     </div>
@@ -230,11 +228,11 @@ function FlashcardMode({ topic, words, onBack }) {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,var(--page-bg-soft),var(--page-bg))] text-[var(--text-primary)]">
         <div className="max-w-md w-full mx-auto px-6 text-center">
           <div className="text-6xl mb-6">🎉</div>
           <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Hoàn thành!</h2>
-          <p className="text-gray-500 mb-8">Bạn vừa hoàn thành {words.length} từ vựng của chủ đề <strong>{topic.name}</strong></p>
+          <p className="mb-8 text-[var(--text-secondary)]">Bạn vừa hoàn thành {words.length} từ vựng của chủ đề <strong>{topic.name}</strong></p>
 
           <div className="grid grid-cols-2 gap-4 mb-8">
             <div className="bg-green-50 rounded-2xl p-5 border border-green-100">
@@ -256,7 +254,7 @@ function FlashcardMode({ topic, words, onBack }) {
             </button>
             <button
               onClick={onBack}
-              className="w-full py-3 bg-white text-gray-600 font-medium rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
+              className="w-full rounded-xl border py-3 font-medium transition-colors bg-[var(--surface-bg)] text-[var(--text-secondary)] border-[var(--border-color)] hover:bg-[var(--surface-hover)]"
             >
               ← Quay lại danh sách
             </button>
@@ -267,12 +265,12 @@ function FlashcardMode({ topic, words, onBack }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--page-bg-soft),var(--page-bg))] text-[var(--text-primary)]">
       <div className="max-w-2xl mx-auto px-6 py-10">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <button onClick={onBack} className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
+          <button onClick={onBack} className="text-sm transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)]">
             ← Thoát
           </button>
           <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -281,7 +279,7 @@ function FlashcardMode({ topic, words, onBack }) {
               style={{ width: `${((currentIndex) / words.length) * 100}%` }}
             />
           </div>
-          <span className="text-sm font-medium text-gray-500">{currentIndex + 1}/{words.length}</span>
+          <span className="text-sm font-medium text-[var(--text-secondary)]">{currentIndex + 1}/{words.length}</span>
         </div>
 
         {/* Flashcard */}
@@ -300,15 +298,15 @@ function FlashcardMode({ topic, words, onBack }) {
           >
             {/* Mặt trước — Tiếng Anh */}
             <div
-              className="absolute inset-0 bg-white rounded-3xl flex flex-col items-center justify-center p-10"
+              className="absolute inset-0 flex flex-col items-center justify-center rounded-3xl p-10 bg-[var(--surface-bg)]"
               style={{ backfaceVisibility: "hidden" }}
             >
-              <p className="text-xs text-gray-400 uppercase tracking-widest mb-6 font-semibold">Từ tiếng Anh</p>
-              <h2 className="text-5xl font-extrabold text-gray-900 text-center mb-4">{current.word}</h2>
+              <p className="mb-6 text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">Từ tiếng Anh</p>
+              <h2 className="mb-4 text-center text-5xl font-extrabold text-[var(--text-primary)]">{current.word}</h2>
               {current.ipa && (
-                <p className="text-lg text-gray-400 font-mono">{current.ipa}</p>
+                <p className="font-mono text-lg text-[var(--text-muted)]">{current.ipa}</p>
               )}
-              <p className="text-sm text-gray-300 mt-8">Nhấn vào thẻ để xem nghĩa ↓</p>
+              <p className="mt-8 text-sm text-[var(--text-muted)]">Nhấn vào thẻ để xem nghĩa ↓</p>
             </div>
 
             {/* Mặt sau — Tiếng Việt */}
@@ -348,7 +346,7 @@ function FlashcardMode({ topic, words, onBack }) {
           </div>
         ) : (
           <div className="text-center">
-            <p className="text-gray-400 text-sm">Hãy nhẩm nghĩa của từ này, rồi nhấn thẻ để kiểm tra</p>
+            <p className="text-sm text-[var(--text-muted)]">Hãy nhẩm nghĩa của từ này, rồi nhấn thẻ để kiểm tra</p>
           </div>
         )}
       </div>
@@ -360,8 +358,6 @@ function FlashcardMode({ topic, words, onBack }) {
 // Component chính — Điều phối 3 màn hình
 // ─────────────────────────────────────────────
 export default function Vocabulary() {
-  const navigate = useNavigate();
-
   // screen: "topics" | "list" | "flashcard"
   const [screen, setScreen] = useState("topics");
   const [topics, setTopics] = useState([]);
@@ -401,8 +397,8 @@ export default function Vocabulary() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50">
-        <div className="flex flex-col items-center gap-4 text-gray-400">
+      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,var(--page-bg-soft),var(--page-bg))]">
+        <div className="flex flex-col items-center gap-4 text-[var(--text-muted)]">
           <div className="animate-spin h-10 w-10 border-4 border-indigo-400 border-t-transparent rounded-full" />
           <p className="text-sm">Đang tải...</p>
         </div>

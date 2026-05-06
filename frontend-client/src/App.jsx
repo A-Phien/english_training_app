@@ -12,7 +12,7 @@ import VocabularyManager from "./admin/VocabularyManager";
 
 function App() {
   return (
-    <div className="App">
+    <div className="App min-h-screen bg-[var(--page-bg)] text-[var(--text-primary)] transition-colors duration-300">
       <Header />
       <Routes>
         <Route path="/" element={<LessonList />} />
