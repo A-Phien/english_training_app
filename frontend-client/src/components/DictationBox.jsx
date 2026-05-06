@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 function normalize(s) {
     return s.toLowerCase().replace(/[^\w\s]/g, "").replace(/\s+/g, " ").trim();
@@ -35,6 +36,7 @@ export default function DictationBox({ sentence, playerRef, showTranslation }) {
     const [result, setResult] = useState(null);       // null | { wordAnalysis, score, extraWords }
     const [showAnswerText, setShowAnswerText] = useState(false);
     const inputRef = useRef(null);
+    const { t } = useTranslation();
 
     // Reset khi đổi câu
     useEffect(() => {
@@ -83,21 +85,21 @@ export default function DictationBox({ sentence, playerRef, showTranslation }) {
         }
     };
 
-    const orderLabel = sentence.orderIndex != null ? `Câu ${sentence.orderIndex + 1}: ` : "";
+    const orderLabel = sentence.orderIndex != null ? t("dictation.sentence", { index: sentence.orderIndex + 1 }) : "";
 
     return (
         <div onClick={(e) => e.stopPropagation()}>
             {/* Tên câu — ẩn nội dung bằng dấu chấm nếu chưa xem đáp án */}
-            <p className="text-sm font-semibold text-gray-600 mb-2 select-none">
+            <p className="text-sm font-semibold text-gray-500 dark:text-slate-400 mb-2 select-none">
                 {orderLabel}
-                <span className="text-gray-300 tracking-widest">
+                <span className="text-gray-300 dark:text-slate-600 tracking-widest">
                     {showAnswerText || result ? "" : "…………………………"}
                 </span>
             </p>
 
             {/* Hiện đáp án nếu bấm Đáp án */}
             {showAnswerText && (
-                <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2 font-medium">
+                <p className="text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-lg px-3 py-2 mb-2 font-medium">
                     💡 {sentence.content}
                 </p>
             )}
@@ -110,9 +112,9 @@ export default function DictationBox({ sentence, playerRef, showTranslation }) {
                             ${result.score >= 85 ? "bg-green-100 text-green-700"
                                 : result.score >= 60 ? "bg-amber-100 text-amber-700"
                                     : "bg-red-100 text-red-700"}`}>
-                            {result.score} điểm
+                            {result.score} {t("dictation.points")}
                         </span>
-                        {result.score === 100 && <span className="text-xs text-green-600">🎉 Hoàn hảo!</span>}
+                        {result.score === 100 && <span className="text-xs text-green-600">{t("dictation.perfect")}</span>}
                     </div>
                     <div className="flex flex-wrap gap-1">
                         {result.wordAnalysis.map((item, i) => (
@@ -126,7 +128,7 @@ export default function DictationBox({ sentence, playerRef, showTranslation }) {
                     </div>
                     {result.extraWords.length > 0 && (
                         <p className="text-xs text-amber-600 mt-1">
-                            Thừa: {result.extraWords.join(", ")}
+                            {t("dictation.extra")}{result.extraWords.join(", ")}
                         </p>
                     )}
                 </div>
@@ -140,9 +142,8 @@ export default function DictationBox({ sentence, playerRef, showTranslation }) {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onClick={(e) => e.stopPropagation()}
-                placeholder="Nhập những gì bạn nghe được..."
-                className="w-full bg-gray-800 text-gray-100 placeholder-gray-500 text-sm rounded-lg px-3 py-2.5 mb-2.5 border border-gray-600 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 transition-all"
-                style={{ background: "rgba(92, 161, 221, 1)" }}
+                placeholder={t("dictation.placeholder")}
+                className="w-full bg-white dark:bg-slate-700 text-gray-800 dark:text-slate-100 placeholder-gray-400 dark:placeholder-slate-400 text-sm rounded-lg px-3 py-2.5 mb-2.5 border border-gray-200 dark:border-slate-600 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all"
             />
 
             {/* Nút hành động */}
@@ -151,32 +152,32 @@ export default function DictationBox({ sentence, playerRef, showTranslation }) {
                     onClick={playSentence}
                     className="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-white text-xs font-bold rounded-lg transition-colors"
                 >
-                    Nghe lại
+                    {t("dictation.listen")}
                 </button>
                 <button
                     onClick={handleCheck}
                     disabled={!input.trim()}
                     className="px-3 py-1.5 bg-green-500 hover:bg-green-400 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                    Kiểm tra
+                    {t("dictation.check")}
                 </button>
                 <button
                     onClick={handleShowAnswer}
                     className="px-3 py-1.5 bg-orange-500 hover:bg-orange-400 text-white text-xs font-bold rounded-lg transition-colors"
                 >
-                    Đáp án
+                    {t("dictation.answer")}
                 </button>
                 <button
                     onClick={handleReset}
                     className="px-3 py-1.5 bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold rounded-lg transition-colors"
                 >
-                    Làm lại
+                    {t("dictation.reset")}
                 </button>
             </div>
 
             {/* Bản dịch (nếu bật) */}
             {showTranslation && sentence.translation && (
-                <p className="text-xs text-gray-400 mt-2 italic">{sentence.translation}</p>
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-2 italic">{sentence.translation}</p>
             )}
         </div>
     );

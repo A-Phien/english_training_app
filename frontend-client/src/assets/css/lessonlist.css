@@ -2,6 +2,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
+  color: var(--text-primary);
 }
 
 .list-header {
@@ -11,8 +12,12 @@
 
 .list-header h1 {
   font-size: 32px;
-  color: #1a202c;
+  color: var(--text-primary);
   margin-bottom: 10px;
+}
+
+.list-header p {
+  color: var(--text-secondary);
 }
 
 /* Grid layout: Tự động chia cột theo màn hình */
@@ -24,18 +29,18 @@
 
 /* Thẻ Card */
 .lesson-card {
-  background: #fff;
+  background: var(--surface-bg);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 24px -18px rgba(var(--shadow-color), 0.8);
   transition: all 0.3s ease;
   cursor: pointer;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--border-color);
 }
 
 .lesson-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 30px -18px rgba(var(--shadow-color), 0.9);
 }
 
 /* Ảnh Thumbnail */
@@ -93,20 +98,20 @@
 .lesson-card-title {
   font-size: 18px;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text-primary);
   margin-bottom: 10px;
   line-height: 1.4;
 }
 
 .lesson-desc {
   font-size: 14px;
-  color: #718096;
+  color: var(--text-secondary);
   margin-bottom: 15px;
 }
 
 .tag {
-  background: #ebf8ff;
-  color: #3182ce;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;

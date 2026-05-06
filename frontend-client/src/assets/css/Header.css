@@ -1,67 +1,142 @@
-/* Giao diện thực chiến - Không màu mè */
-
 .main-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 2rem;
-    background: #fff;
-    border-bottom: 1px solid #eee; /* Chỉ một đường kẻ mỏng phân ranh giới */
+    gap: 1.25rem;
+    padding: 0.9rem 2rem;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(14px);
 }
 
-/* Logo thực tế, không cần icon emoji lòe loẹt */
 .logo {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #1a1a1a;
-    text-decoration: none;
-    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--text-primary);
 }
 
-/* Menu điều hướng - Thẳng thắn, giản đơn */
+.icon {
+    font-size: 1.2rem;
+}
+
+.brand-name {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
 .nav-menu ul {
     display: flex;
     list-style: none;
     margin: 0;
     padding: 0;
-    gap: 24px;
+    gap: 1.5rem;
 }
 
 .nav-menu a {
     text-decoration: none;
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .nav-menu a:hover {
-    color: #000; /* Chỉ đổi màu nhẹ khi lướt qua */
+    color: var(--text-primary);
 }
 
-/* Khu vực chức năng */
 .user-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 0.85rem;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid var(--border-color);
+    background: var(--surface-bg);
+    color: var(--text-secondary);
+    border-radius: 999px;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 24px -18px rgba(var(--shadow-color), 0.85);
+}
+
+.theme-toggle:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+}
+
+.theme-toggle-icon {
+    font-size: 0.95rem;
+}
+
+.btn-login,
+.btn-register,
+.btn-ghost {
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.55rem 1rem;
 }
 
 .btn-login {
-    text-decoration: none;
-    color: #1a1a1a;
-    font-size: 0.9rem;
-    font-weight: 500;
+    color: var(--text-primary);
 }
 
 .btn-register {
-    background: #1a1a1a; /* Màu đen tối giản, quyền lực */
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
     color: #fff;
-    padding: 6px 16px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: opacity 0.2s;
+    box-shadow: 0 12px 24px -16px rgba(79, 70, 229, 0.8);
 }
 
 .btn-register:hover {
-    opacity: 0.8;
+    opacity: 0.92;
+}
+
+.btn-ghost {
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+}
+
+.account-link {
+    text-decoration: none;
+}
+
+.account-name {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .main-header {
+        flex-wrap: wrap;
+        padding: 0.9rem 1rem;
+    }
+
+    .nav-menu {
+        order: 3;
+        width: 100%;
+    }
+
+    .nav-menu ul {
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 0.2rem;
+    }
 }
