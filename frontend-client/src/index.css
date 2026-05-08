@@ -1,58 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
   color-scheme: light;
-  --page-bg: #f6f8fc;
-  --page-bg-soft: #eef2ff;
-  --surface-bg: #ffffff;
-  --surface-bg-muted: #f8fafc;
-  --surface-hover: #f1f5f9;
-  --border-color: #e2e8f0;
+  --page-bg: #f8fafc;
+  --page-bg-soft: #f1f5f9;
+  --surface-bg: rgba(255, 255, 255, 0.7);
+  --surface-bg-muted: rgba(248, 250, 252, 0.5);
+  --surface-hover: rgba(241, 245, 249, 0.8);
+  --border-color: rgba(226, 232, 240, 0.8);
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #64748b;
-  --header-bg: rgba(255, 255, 255, 0.9);
-  --footer-bg: #eef2f7;
   --shadow-color: 15, 23, 42;
 }
 
 :root.dark {
   color-scheme: dark;
-  --page-bg: #0b1220;
-  --page-bg-soft: #111a2e;
-  --surface-bg: #121c2f;
-  --surface-bg-muted: #182338;
-  --surface-hover: #23304a;
-  --border-color: #263248;
-  --text-primary: #e5eefc;
-  --text-secondary: #c7d3e6;
+  --page-bg: #030712; /* Deep space black/blue */
+  --page-bg-soft: #0f172a;
+  --surface-bg: rgba(15, 23, 42, 0.4); /* Glassmorphism base */
+  --surface-bg-muted: rgba(15, 23, 42, 0.2);
+  --surface-hover: rgba(30, 41, 59, 0.6);
+  --border-color: rgba(255, 255, 255, 0.08); /* Delicate border */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
-  --header-bg: rgba(12, 19, 33, 0.88);
-  --footer-bg: #10192b;
-  --shadow-color: 2, 8, 23;
+  --shadow-color: 0, 0, 0;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   min-height: 100%;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
   margin: 0;
   background: var(--page-bg);
   color: var(--text-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-a,
-button,
-input,
-textarea,
-select {
-  transition:
-    background-color 0.25s ease,
-    border-color 0.25s ease,
-    color 0.25s ease,
-    box-shadow 0.25s ease;
+.dark body {
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background-color: var(--surface-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(var(--shadow-color), 0.1), 0 2px 4px -2px rgba(var(--shadow-color), 0.1);
+}
+
+.glass-panel:hover {
+  background-color: var(--surface-hover);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Smooth Transitions */
+a, button, input, textarea, select {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
