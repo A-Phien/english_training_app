@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import com.example.backend_core.dto.TranscriptResponse;
 import com.example.backend_core.model.Lesson;
 import com.example.backend_core.model.Sentence;
+import com.example.backend_core.repository.EvaluationRepository;
 import com.example.backend_core.repository.LessonRepository;
 import com.example.backend_core.repository.SentenceRepository;
 
@@ -20,11 +21,13 @@ public class LessonService {
 
     private final LessonRepository lessonRepository;
     private final SentenceRepository sentenceRepository;
+    private final EvaluationRepository evaluationRepository;
     private final RestTemplate restTemplate;
     
-    public LessonService(LessonRepository lessonRepository, SentenceRepository sentenceRepository) {
+    public LessonService(LessonRepository lessonRepository, SentenceRepository sentenceRepository, EvaluationRepository evaluationRepository) {
         this.lessonRepository = lessonRepository;
 		this.sentenceRepository = sentenceRepository;
+		this.evaluationRepository = evaluationRepository;
 		this.restTemplate = new RestTemplate();
     }
     
@@ -144,7 +147,7 @@ public class LessonService {
         // 4. CHỈ KHI NÀO ĐỔI LINK, mới thi triển trận pháp quét dọn và triệu hồi AI
         if (isUrlChanged) {
             // Quét sạch tàn dư cũ
-            sentenceRepository.deleteByLessonId(id);
+            sentenceRepository.deleteByLesson_Id(id);
 
             // Khai mở trận pháp, triệu hồi lại AI
             String videoId = extractVideoId(savedLesson.getYoutubeUrl());
@@ -177,7 +180,19 @@ public class LessonService {
 
     @Transactional 
     public void delete(Long id) {
-        sentenceRepository.deleteByLessonId(id); // Dọn dẹp tàn dư: Xóa toàn bộ câu (Sentence) của bài học này
+        // 1. Tìm tất cả sentence IDs thuộc bài học này
+        List<Long> sentenceIds = sentenceRepository.findByLesson_IdOrderByOrderIndexAsc(id)
+                .stream().map(Sentence::getId).toList();
+        
+        // 2. Xóa tất cả evaluation tham chiếu đến các sentence này (tránh lỗi FK)
+        if (!sentenceIds.isEmpty()) {
+            evaluationRepository.deleteBySentence_IdIn(sentenceIds);
+        }
+        
+        // 3. Xóa toàn bộ câu (Sentence) của bài học này
+        sentenceRepository.deleteByLesson_Id(id);
+        
+        // 4. Cuối cùng xóa bài học
         lessonRepository.deleteById(id);
     }
     

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../auth/apiClient";
 import { getUser, logout } from "../auth/authUtils";
@@ -15,7 +15,7 @@ function parseMistakes(raw) {
         };
     } catch {
         const wrongWords = [], extraWords = [];
-        const wordRegex = /\{word=([^,}]+(?:,(?!\s*status))*)\s*,\s*status=wrong\}/g;
+        const wordRegex = /\{word=([^,}]+(?:,(?!\s*status))*)[\s]*,[\s]*status=wrong\}/g;
         let m;
         while ((m = wordRegex.exec(raw)) !== null) wrongWords.push(m[1].trim());
         const extraMatch = raw.match(/extra_words=\[([^\]]*)\]/);
@@ -29,7 +29,7 @@ function formatDate(str) {
     return new Date(str).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-// ─── Avatar Component ─────────────────────────────────────────────────────────
+// ─── Avatar tĩnh (dùng ở nơi khác trong app) ─────────────────────────────────
 function Avatar({ user, size = "md" }) {
     const sizeClass = size === "lg" ? "w-16 h-16 text-2xl" : "w-9 h-9 text-sm";
     if (user?.avatarUrl) {
@@ -39,6 +39,126 @@ function Avatar({ user, size = "md" }) {
     return (
         <div className={`${sizeClass} rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold ring-2 ring-white`}>
             {initials}
+        </div>
+    );
+}
+
+// ─── Avatar có nút upload (Profile Header) ────────────────────────────────────
+function UploadableAvatar({ user, onUploadSuccess }) {
+    const fileRef = useRef(null);
+    const [uploading, setUploading] = useState(false);
+    const [preview, setPreview] = useState(user?.avatarUrl || null);
+    const [error, setError] = useState("");
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            setError("Chỉ chấp nhận file ảnh (jpg, png, webp...)");
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            setError("Ảnh tối đa 10MB");
+            return;
+        }
+
+        // Hiển thị preview ngay lập tức
+        const localUrl = URL.createObjectURL(file);
+        setPreview(localUrl);
+        setError("");
+        setUploading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const token = localStorage.getItem("token");
+            const res = await fetch(`http://localhost:8080/api/users/${user.userId}/avatar`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` },
+                body: formData,
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || "Upload thất bại");
+            }
+
+            const data = await res.json();
+
+            // Lưu vào localStorage để các component khác đọc được
+            const stored = JSON.parse(localStorage.getItem("user") || "{}");
+            stored.avatarUrl = data.avatarUrl;
+            localStorage.setItem("user", JSON.stringify(stored));
+
+            setPreview(data.avatarUrl);
+            onUploadSuccess?.(data.avatarUrl);
+        } catch (err) {
+            setError(err.message);
+            setPreview(user?.avatarUrl || null);
+        } finally {
+            setUploading(false);
+            if (fileRef.current) fileRef.current.value = "";
+        }
+    };
+
+    const initials = (user?.username || "U").charAt(0).toUpperCase();
+
+    return (
+        <div className="relative shrink-0 group">
+            {/* Avatar */}
+            <div className="w-20 h-20 rounded-full ring-4 ring-white shadow-md overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                {preview
+                    ? <img src={preview} alt={user?.username} className="w-full h-full object-cover" />
+                    : <span className="text-3xl font-bold text-white">{initials}</span>
+                }
+            </div>
+
+            {/* Overlay khi hover */}
+            <button
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading}
+                className="absolute inset-0 rounded-full bg-black/50 flex flex-col items-center justify-center gap-1
+                           opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                title="Thay ảnh đại diện"
+            >
+                {uploading
+                    ? <svg className="w-5 h-5 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      </svg>
+                    : <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                }
+                <span className="text-white text-[10px] font-medium leading-none">
+                    {uploading ? "Đang tải..." : "Đổi ảnh"}
+                </span>
+            </button>
+
+            {/* Input file ẩn */}
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+
+            {/* Badge camera nhỏ góc dưới phải */}
+            {!uploading && (
+                <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-indigo-600 border-2 border-white flex items-center justify-center shadow pointer-events-none">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+            )}
+
+            {/* Thông báo lỗi */}
+            {error && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-52 text-center text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 shadow z-10">
+                    {error}
+                </div>
+            )}
         </div>
     );
 }
@@ -210,7 +330,7 @@ function SavedVocabTab({ words, loading, onDelete, t }) {
     const [done, setDone] = useState(false);
 
     const startFlashcard = () => {
-        const arr = [...words].sort(() => Math.random() - 0.5); // xáo ngẫu nhiên
+        const arr = [...words].sort(() => Math.random() - 0.5);
         setShuffled(arr);
         setCurrentIndex(0);
         setIsFlipped(false);
@@ -232,7 +352,6 @@ function SavedVocabTab({ words, loading, onDelete, t }) {
         window.speechSynthesis.speak(u);
     };
 
-    // ── Flashcard mode ──
     if (flashcardMode) {
         if (done) return (
             <div className="flex flex-col items-center justify-center py-16 gap-6">
@@ -251,7 +370,6 @@ function SavedVocabTab({ words, loading, onDelete, t }) {
         const current = shuffled[currentIndex];
         return (
             <div className="max-w-lg mx-auto py-6">
-                {/* Progress */}
                 <div className="flex items-center gap-3 mb-8">
                     <button onClick={() => setFlashcardMode(false)} className="text-sm text-gray-400 hover:text-gray-700">{t("vocab.exit")}</button>
                     <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -260,7 +378,6 @@ function SavedVocabTab({ words, loading, onDelete, t }) {
                     <span className="text-sm text-gray-500 font-medium">{currentIndex + 1}/{shuffled.length}</span>
                 </div>
 
-                {/* Card */}
                 <div className="relative cursor-pointer mb-8" style={{ perspective: "1000px" }} onClick={() => { setIsFlipped(f => !f); if (!isFlipped) playAudio(current.word); }}>
                     <div className="relative w-full rounded-3xl shadow-xl transition-transform duration-500" style={{ transformStyle: "preserve-3d", transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)", minHeight: "260px" }}>
                         <div className="absolute inset-0 flex flex-col items-center justify-center rounded-3xl p-8 bg-[var(--surface-bg)]" style={{ backfaceVisibility: "hidden" }}>
@@ -289,7 +406,6 @@ function SavedVocabTab({ words, loading, onDelete, t }) {
         );
     }
 
-    // ── List mode ──
     if (loading) return <div className="text-center py-16 text-gray-400">{t("lessonList.loading")}</div>;
 
     if (words.length === 0) return (
@@ -335,7 +451,6 @@ function SavedVocabTab({ words, loading, onDelete, t }) {
 }
 
 // ─── Main: AccountDashboard ───────────────────────────────────────────────────
-// Tab keys — labels sẽ được dịch bên trong component
 const TAB_KEYS = [
     { id: "overview", labelKey: "account.tabs.overview", icon: "📊" },
     { id: "history", labelKey: "account.tabs.history", icon: "📋" },
@@ -344,7 +459,7 @@ const TAB_KEYS = [
 
 export default function AccountDashboard() {
     const navigate = useNavigate();
-    const user = getUser();
+    const [user, setUser] = useState(getUser());
     const { t } = useTranslation();
 
     const [activeTab, setActiveTab] = useState("overview");
@@ -357,14 +472,12 @@ export default function AccountDashboard() {
     useEffect(() => {
         if (!user) { navigate("/login"); return; }
 
-        // Load lịch sử luyện tập
         api.get("/api/evaluate/history")
             .then(res => { if (!res.ok) throw new Error(t("account.errorLoadHistory")); return res.json(); })
             .then(setHistory)
             .catch(err => setHistoryError(err.message))
             .finally(() => setHistoryLoading(false));
 
-        // Load từ vựng đã lưu
         api.get("/api/user-vocabulary")
             .then(res => { if (!res.ok) throw new Error(); return res.json(); })
             .then(setSavedWords)
@@ -378,20 +491,35 @@ export default function AccountDashboard() {
         if (res.ok) setSavedWords(prev => prev.filter(w => w.id !== id));
     }, []);
 
+    // Callback khi upload ảnh thành công → cập nhật state user để avatar đổi ngay
+    const handleAvatarUploaded = (newAvatarUrl) => {
+        setUser(prev => ({ ...prev, avatarUrl: newAvatarUrl }));
+    };
+
     return (
         <div className="min-h-screen bg-[var(--page-bg)] text-[var(--text-primary)]">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
 
                 {/* Profile Header */}
                 <div className="mb-6 flex items-center gap-5 rounded-2xl border p-6 shadow-sm bg-[var(--surface-bg)] border-[var(--border-color)]">
-                    <Avatar user={user} size="lg" />
+                    {/* Avatar có nút upload */}
+                    <UploadableAvatar user={user} onUploadSuccess={handleAvatarUploaded} />
+
                     <div className="flex-1 min-w-0">
                         <h1 className="truncate text-xl font-bold text-[var(--text-primary)]">{user?.username}</h1>
                         <p className="text-sm text-[var(--text-muted)]">{user?.email || t("account.noEmail")}</p>
                         <span className="inline-block mt-1 text-xs px-2.5 py-0.5 bg-indigo-50 text-indigo-700 rounded-full font-medium">
                             {user?.role || "USER"}
                         </span>
+                        {/* Gợi ý nhỏ cho người dùng */}
+                        <p className="mt-2 text-xs text-[var(--text-muted)] flex items-center gap-1">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Di chuột vào ảnh để thay đổi ảnh đại diện
+                        </p>
                     </div>
+
                     <button
                         onClick={() => { logout(); navigate("/login"); }}
                         className="shrink-0 rounded-xl border px-4 py-2 text-sm transition-all text-[var(--text-secondary)] border-[var(--border-color)] hover:border-red-200 hover:bg-red-50 hover:text-red-600"

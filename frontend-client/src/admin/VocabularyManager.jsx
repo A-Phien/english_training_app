@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 import apiClient, { api } from "../auth/apiClient";
+import { useNavigate } from "react-router-dom";
+import { getUser } from "../auth/authUtils";
 
 // ── Form thêm/sửa Chủ Đề ───────────────────────────────────
 function TopicForm({ initial, onSave, onCancel }) {
@@ -173,6 +175,15 @@ function ImportPreview({ rows, onConfirm, onCancel, loading }) {
 
 // ── Trang chính VocabularyManager ────────────────────────
 export default function VocabularyManager() {
+  const navigate = useNavigate();
+  const user = getUser();
+
+  useEffect(() => {
+    if (!user || user.role !== "ADMIN") {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
   const [topics, setTopics] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [words, setWords] = useState([]);

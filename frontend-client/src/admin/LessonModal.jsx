@@ -55,11 +55,11 @@ export default function AdminLessons() {
     const [deleteLoading, setDeleteLoading] = useState(false);
 
     // Kế hoạch phòng ngự (Mở ra nếu muốn cấm kẻ ngoại đạo)
-    // useEffect(() => {
-    //     if (!user || user.role !== "ADMIN") {
-    //         navigate("/");
-    //     }
-    // }, []);
+    useEffect(() => {
+        if (!user || user.role !== "ADMIN") {
+            navigate("/");
+        }
+    }, [user, navigate]);
 
     const fetchLessons = async () => {
         setLoading(true);

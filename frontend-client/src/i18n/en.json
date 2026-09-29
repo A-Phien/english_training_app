@@ -81,6 +81,25 @@
     "errorGoogle": "Google login failed",
     "errorGoogleRetry": "Google login failed, please try again"
   },
+  "register": {
+    "title": "Create an account",
+    "subtitle": "Create a new account to track your practice history",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email address",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "submit": "Register",
+    "loading": "Registering...",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginNow": "Login now",
+    "errorPasswordsDoNotMatch": "Passwords do not match",
+    "errorUsernameExists": "Username already exists",
+    "errorEmailExists": "Email already exists",
+    "errorGeneric": "Registration failed, please try again"
+  },
   "account": {
     "logout": "Logout",
     "noEmail": "No email set",
