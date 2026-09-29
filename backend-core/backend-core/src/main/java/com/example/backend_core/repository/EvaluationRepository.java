@@ -8,4 +8,5 @@ import com.example.backend_core.model.Evaluation;
 
 public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
     List<Evaluation> findByUserIdOrderByCreatedAtDesc(Long userId);
+    void deleteBySentence_IdIn(List<Long> sentenceIds);
 }

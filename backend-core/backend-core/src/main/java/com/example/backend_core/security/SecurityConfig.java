@@ -34,22 +34,37 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public routes
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/lessons/**").permitAll()
-                        // .requestMatchers("/api/topics/**").permitAll()
-                        // Sentences: ghi cần đăng nhập, đọc công khai
-                        .requestMatchers(HttpMethod.POST, "/api/sentences/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/sentences/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/sentences/**").authenticated()
+                        
+                        // Lessons: GET is public, POST/PUT/DELETE require ADMIN role
+                        .requestMatchers(HttpMethod.GET, "/api/lessons/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/lessons/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/lessons/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/lessons/**").hasRole("ADMIN")
+
+                        // Sentences: GET is public, write requires ADMIN role
                         .requestMatchers(HttpMethod.GET, "/api/sentences/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/topics/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/topics/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/topics/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/sentences/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/sentences/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/sentences/**").hasRole("ADMIN")
+
+                        // Topics: GET is public, write requires ADMIN role
                         .requestMatchers(HttpMethod.GET, "/api/topics/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/vocabularies/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/vocabularies/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/topics/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/topics/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/topics/**").hasRole("ADMIN")
+
+                        // Vocabularies: GET is public, write requires ADMIN role
                         .requestMatchers(HttpMethod.GET, "/api/vocabularies/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/vocabularies/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/vocabularies/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/vocabularies/**").hasRole("ADMIN")
+
                         // User vocabulary — cần đăng nhập
                         .requestMatchers("/api/user-vocabulary/**").authenticated()
+
+                        // Upload avatar — cần đăng nhập
+                        .requestMatchers(HttpMethod.POST, "/api/users/*/avatar").authenticated()
+
                         // Protected routes
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

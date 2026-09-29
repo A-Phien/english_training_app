@@ -46,13 +46,29 @@ async def get_transcript(video_id: str):
             first = next(iter(transcript_list))
             fetched = first.fetch()
 
-        sentences = []
-        for index, item in enumerate(fetched):
-            sentences.append({
+        # Xây dựng danh sách segment thô từ YouTube
+        raw_segments = []
+        for item in fetched:
+            raw_segments.append({
                 "content": item.text.strip(),
                 "start_time": round(item.start, 2),
-                "end_time": round(item.start + item.duration, 2),
-                "order_index": index
+                "original_end_time": round(item.start + item.duration, 2),
+            })
+
+        # Sửa thời gian chồng chéo: end_time của segment hiện tại
+        # = start_time của segment tiếp theo (đảm bảo không overlap)
+        sentences = []
+        for i, seg in enumerate(raw_segments):
+            if i < len(raw_segments) - 1:
+                end_time = raw_segments[i + 1]["start_time"]
+            else:
+                end_time = seg["original_end_time"]
+            
+            sentences.append({
+                "content": seg["content"],
+                "start_time": seg["start_time"],
+                "end_time": end_time,
+                "order_index": i
             })
 
         # 2. Gọi Groq 1 request duy nhất cho tất cả câu
@@ -258,16 +274,16 @@ def normalize(text: str) -> str:
 # TÍNH ĐIỂM VÀ SOI LỖI TỪNG CHỮ
 # =====================
 def calculate_score(expected: str, transcript: str):
-    exp_norm = normalize(expected)
-    tra_norm = normalize(transcript)
+    exp_norm = normalize(expected)# Chuẩn hóa câu mẫu
+    tra_norm = normalize(transcript) # Chuẩn hóa câu user đọc
 
-    # 1. Tính tổng điểm (Giữ nguyên của ngươi)
-    dist = levenshtein_distance(exp_norm, tra_norm)
-    max_len = max(len(exp_norm), len(tra_norm), 1)
-    score = round((1 - dist / max_len) * 100, 2)
-    score = max(0.0, score)
+    # 1. Tính tổng điểm 
+    dist = levenshtein_distance(exp_norm, tra_norm) # Tính số lượng ký tự khác biệt
+    max_len = max(len(exp_norm), len(tra_norm), 1)# Lấy độ dài chuỗi lớn nhất
+    score = round((1 - dist / max_len) * 100, 2) # Công thức quy đổi ra % độ chính xác
+    score = max(0.0, score) # đảm bảo không âm
 
-    # 2. Thuật bóc tách và phân loại từng chữ (Huyễn Sắc Khám Phá)
+    # 2. Thuật bóc tách và phân loại từng chữ
     exp_raw_words = expected.split() # Tách câu gốc (có giữ dấu phẩy, chấm)
     tra_norm_words = tra_norm.split() # Câu đọc của user (đã làm sạch)
     word_analysis = []

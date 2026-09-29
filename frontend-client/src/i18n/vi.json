@@ -81,6 +81,25 @@
     "errorGoogle": "Đăng nhập bằng Google thất bại",
     "errorGoogleRetry": "Đăng nhập bằng Google thất bại, vui lòng thử lại"
   },
+  "register": {
+    "title": "Đăng ký tài khoản",
+    "subtitle": "Tạo tài khoản mới để lưu lịch sử tu luyện của bạn",
+    "username": "Tài khoản",
+    "usernamePlaceholder": "Nhập tên tài khoản",
+    "email": "Email",
+    "emailPlaceholder": "Nhập địa chỉ email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
+    "submit": "Đăng ký",
+    "loading": "Đang đăng ký...",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "loginNow": "Đăng nhập ngay",
+    "errorPasswordsDoNotMatch": "Mật khẩu xác nhận không trùng khớp",
+    "errorUsernameExists": "Tên tài khoản đã tồn tại",
+    "errorEmailExists": "Email đã tồn tại",
+    "errorGeneric": "Đăng ký thất bại, vui lòng thử lại"
+  },
   "account": {
     "logout": "Đăng xuất",
     "noEmail": "Chưa cập nhật email",

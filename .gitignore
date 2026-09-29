@@ -1,2 +1,22 @@
+# Secrets - KHÔNG commit
 .env
 .env.local
+.env.*.local
+*.env
+
+# Backup & dump database
+*.backup
+*.dump
+*.sql
+
+# Log files
+*.log
+*.error.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Node
+node_modules/
