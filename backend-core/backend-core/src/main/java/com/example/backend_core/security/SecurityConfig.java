@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public routes
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/error").permitAll()
                         
                         // Lessons: GET is public, POST/PUT/DELETE require ADMIN role
                         .requestMatchers(HttpMethod.GET, "/api/lessons/**").permitAll()
@@ -78,11 +78,14 @@ public class SecurityConfig {
         // config.setAllowedOrigins(List.of("http://localhost:5173"));
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173", // dev local
-                "http://localhost" // Docker
+                "http://localhost:5174",
+                "http://localhost"       // Docker
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L); // Cache preflight 1 giờ
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

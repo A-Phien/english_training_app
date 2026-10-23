@@ -2,18 +2,24 @@ package com.example.backend_core.security;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 
 @Component
 public class JwtUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
     @Value("${jwt.secret}")
     private String secret;
@@ -25,12 +31,10 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // Tạo token từ username
     public String generateToken(String username) {
         return generateToken(username, "USER");
     }
 
-    // Tạo token kèm role
     public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
@@ -41,7 +45,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Lấy username từ token
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getKey())
@@ -51,7 +54,6 @@ public class JwtUtil {
                 .getSubject();
     }
 
-    // Lấy role từ token
     public String extractRole(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
@@ -65,7 +67,6 @@ public class JwtUtil {
         }
     }
 
-    // Kiểm tra token hợp lệ
     public boolean isValid(String token) {
         try {
             Jwts.parserBuilder()
@@ -73,8 +74,15 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            log.warn("[JWT] Token hết hạn: {}", e.getMessage());
+        } catch (SignatureException e) {
+            log.warn("[JWT] Chữ ký token sai (sai secret?): {}", e.getMessage());
+        } catch (MalformedJwtException e) {
+            log.warn("[JWT] Token sai định dạng: {}", e.getMessage());
         } catch (Exception e) {
-            return false;
+            log.warn("[JWT] Token không hợp lệ: {} - {}", e.getClass().getSimpleName(), e.getMessage());
         }
+        return false;
     }
 }

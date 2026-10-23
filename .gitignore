@@ -9,6 +9,7 @@
 *.backup
 *.dump
 *.sql
+!init.sql
 
 # Log files
 *.log
