@@ -74,18 +74,38 @@ function UploadableAvatar({ user, onUploadSuccess }) {
             formData.append("file", file);
 
             const token = localStorage.getItem("token");
-            const res = await fetch(`http://localhost:8080/api/users/${user.userId}/avatar`, {
+
+            // Lấy userId - thử cả 2 key phòng trường hợp backend lưu khác nhau
+            const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+            const userId = user.userId || storedUser.userId || storedUser.id || user.id;
+
+            if (!userId) {
+                throw new Error("Không tìm thấy userId. Vui lòng đăng xuất và đăng nhập lại.");
+            }
+            if (!token) {
+                throw new Error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+            }
+
+            console.log("[Avatar Upload] userId:", userId, "| token:", token?.substring(0, 20) + "...");
+
+            const res = await fetch(`http://localhost:8080/api/users/${userId}/avatar`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` },
                 body: formData,
             });
 
+            console.log("[Avatar Upload] Response status:", res.status);
+
             if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                throw new Error(err.error || "Upload thất bại");
+                const errText = await res.text();
+                console.error("[Avatar Upload] Error body:", errText);
+                let errMsg = "Upload thất bại";
+                try { errMsg = JSON.parse(errText).error || errMsg; } catch {}
+                throw new Error(`Lỗi ${res.status}: ${errMsg}`);
             }
 
             const data = await res.json();
+            console.log("[Avatar Upload] Success:", data.avatarUrl);
 
             // Lưu vào localStorage để các component khác đọc được
             const stored = JSON.parse(localStorage.getItem("user") || "{}");
@@ -95,6 +115,7 @@ function UploadableAvatar({ user, onUploadSuccess }) {
             setPreview(data.avatarUrl);
             onUploadSuccess?.(data.avatarUrl);
         } catch (err) {
+            console.error("[Avatar Upload] Exception:", err);
             setError(err.message);
             setPreview(user?.avatarUrl || null);
         } finally {

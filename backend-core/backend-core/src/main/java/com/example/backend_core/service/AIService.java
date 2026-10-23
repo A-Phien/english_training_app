@@ -7,6 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -17,15 +18,17 @@ import org.springframework.web.multipart.MultipartFile;
 public class AIService {
 
     private final RestTemplate restTemplate;
+    private final String aiServiceUrl;
 
-    public AIService(RestTemplate restTemplate) {
+    public AIService(RestTemplate restTemplate,
+            @Value("${AI_SERVICE_URL:http://localhost:8000}") String aiServiceUrl) {
         this.restTemplate = restTemplate;
+        this.aiServiceUrl = aiServiceUrl;
     }
 
     public Map<String, Object> evaluateAudio(MultipartFile audio, String expectedText) {
         try {
-             String url = "http://localhost:8000/evaluate";
-//            String url = "http://ai-service:8000/evaluate";
+             String url = aiServiceUrl + "/evaluate";
             // Build multipart body
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("audio", new ByteArrayResource(audio.getBytes()) {

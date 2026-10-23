@@ -67,7 +67,8 @@ public class UserController {
                     "avatarUrl", avatarUrl
             ));
 
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.internalServerError()
                     .body(Map.of("error", "Upload thất bại: " + e.getMessage()));
         }
